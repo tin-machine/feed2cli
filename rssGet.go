@@ -1,6 +1,6 @@
 package main
 
-import "github.com/tin-machine/feed2cli/absorption/fromURI"
+import fromURI "github.com/tin-machine/feed2cli/absorption"
 
 /*
 https://media.growth-and.com/go%E8%A8%80%E8%AA%9E%E3%81%A7rss%E3%83%95%E3%82%A3%E3%83%BC%E3%83%89%E3%82%92%E5%8F%96%E5%BE%97%E3%81%97%E3%81%A6%E3%81%BF%E3%82%8B/
@@ -40,8 +40,5 @@ todo
 
 func main() {
 	// パイプのある無しで振る舞いを変える https://qiita.com/tanksuzuki/items/e712717675faf4efb07a
-	absorption / fromURI.StoreFeed()
-
-	storeFeed("https://b.hatena.ne.jp/entrylist/general.rss", "feeds")
-	storeFeed("http://b.hatena.ne.jp/entrylist/it.rss", "feeds")
+	fromURI.StoreFeed("https://b.hatena.ne.jp/entrylist/general.rss", "feeds")
 }
