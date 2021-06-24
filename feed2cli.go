@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"os"
 
-	input "github.com/tin-machine/feed2cli/input"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
@@ -63,5 +62,5 @@ func main() {
 		b, _ := ioutil.ReadAll(os.Stdin)
 		fmt.Println("パイプで渡された内容(FD値0以外):", string(b))
 	}
-	input.StoreFeed("https://b.hatena.ne.jp/entrylist/general.rss", "feeds")
+	uri.StoreFeed("https://b.hatena.ne.jp/entrylist/general.rss", "feeds")
 }
