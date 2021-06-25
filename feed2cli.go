@@ -62,5 +62,5 @@ func main() {
 		b, _ := ioutil.ReadAll(os.Stdin)
 		fmt.Println("パイプで渡された内容(FD値0以外):", string(b))
 	}
-	uri.StoreFeed("https://b.hatena.ne.jp/entrylist/general.rss", "feeds")
+	StoreFeed("https://b.hatena.ne.jp/entrylist/general.rss", "feeds")
 }
