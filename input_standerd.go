@@ -14,7 +14,6 @@ import (
 todo 標準入力から複数のフィードが与えられた特に分割する処理を追加
 */
 func read() []sortableFeed {
-
 	fp := gofeed.NewParser()
 	b, _ := ioutil.ReadAll(os.Stdin)
 	newFeed, err6 := fp.ParseString(string(b))
