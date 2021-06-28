@@ -40,14 +40,7 @@ func OutputStanderd(feed []sortableFeed) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// string 型 → []byte 型
-	// b := []byte(rss)
 
 	fmt.Print(rss)
-	// err2 := ioutil.WriteFile(file, b, 0666)
-	// if err2 != nil {
-	// 	fmt.Println(os.Stderr, err)
-	// 	os.Exit(1)
-	// }
 
 }

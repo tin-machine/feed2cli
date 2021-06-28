@@ -17,6 +17,7 @@ func read() []sortableFeed {
 	fp := gofeed.NewParser()
 	b, _ := ioutil.ReadAll(os.Stdin)
 	newFeed, err6 := fp.ParseString(string(b))
+
 	if err6 != nil {
 		fmt.Println(err6)
 	}
