@@ -32,11 +32,32 @@ func read() []sortableFeed {
   https://baubaubau.hatenablog.com/entry/2017/11/17/214635#%E6%9B%B8%E3%81%84%E3%81%A6%E3%81%BF%E3%81%9F%E3%82%BD%E3%83%BC%E3%82%B9%E5%85%A8%E9%83%A8
   を参考にSplitFuncを設定していく
   */
+
+  // バッファサイズを大きくする必要があった https://mickey24.hatenablog.com/entry/bufio_scanner_line_length
+  const (
+    initialBufSize = 10000
+    maxBufSize = 1000000
+  )
+
   scanner := bufio.NewScanner(os.Stdin)
-  scanner.Split(bufio.ScanWords)
+  buf := make([]byte, initialBufSize)
+  scanner.Buffer(buf, maxBufSize)
+  // 任意の文字列で区切りたい 
+  // https://baubaubau.hatenablog.com/entry/2017/11/17/214635#%E6%9B%B8%E3%81%84%E3%81%A6%E3%81%BF%E3%81%9F%E3%82%BD%E3%83%BC%E3%82%B9%E5%85%A8%E9%83%A8
+  delim := []byte("</rss>")
+  var splitFunction = func(data []byte, atEOF bool) (advance int, token []byte, err error) {
+    for i := 0; i < len(data); i++ {
+      if data[i] == delim[0] && data[i+1] == delim[1] && data[i+2] == delim[2] && data[i+3] == delim[3] && data[i+4] == delim[4] && data[i+5] == delim[5] && data[i+6] == delim[6] && data[i+7] == delim[7] && data[i+8] == delim[8]  && data[i+9] == delim[9]  && data[i+10] == delim[10]  && data[i+11] == delim[11]  && data[i+12] == delim[12]  {
+        return i + 12, data[:i+12], nil //tokenをdata[:i+3]としているので、区切り文字は含まれる
+      }
+    }
+    return 0, data, bufio.ErrFinalToken
+  }
+  scanner.Split(splitFunction)
+  // scanner.Split(bufio.ScanWords)
   for scanner.Scan() {
     fmt.Println(scanner.Text())
-    fmt.Println("区切ったよ")
+    fmt.Print("\n\n\n区切ったよ\n\n\n")
   }
 
 	if err6 != nil {
