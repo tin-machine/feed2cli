@@ -57,4 +57,5 @@ func main() {
 		OutputStanderd(s)
 	}
 	StoreFeed("https://b.hatena.ne.jp/entrylist/general.rss", "feeds")
+	StoreFeed("https://b.hatena.ne.jp/entrylist/it.rss", "feeds")
 }
