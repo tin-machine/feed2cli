@@ -44,6 +44,8 @@ func read() []sortableFeed {
   scanner.Buffer(buf, maxBufSize)
   // 任意の文字列で区切りたい 
   // https://baubaubau.hatenablog.com/entry/2017/11/17/214635#%E6%9B%B8%E3%81%84%E3%81%A6%E3%81%BF%E3%81%9F%E3%82%BD%E3%83%BC%E3%82%B9%E5%85%A8%E9%83%A8
+  // 任意の文字列を引数に与えると、splitFunctionな関数を返す関数
+  // https://stackoverflow.com/questions/33068644/how-a-scanner-can-be-implemented-with-a-custom-split/33069759
   delim := []byte("</rss>")
   var splitFunction = func(data []byte, atEOF bool) (advance int, token []byte, err error) {
     for i := 0; i < len(data); i++ {
