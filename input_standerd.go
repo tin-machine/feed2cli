@@ -4,9 +4,31 @@ import (
 	"fmt"
 	"os"
   "bufio"
+  "strings"
 
 	"github.com/mmcdole/gofeed"
 )
+
+// https://stackoverflow.com/questions/33068644/how-a-scanner-can-be-implemented-with-a-custom-split/33069759
+func SplitAt(substr string) func(data []byte, atEOF bool) (advance int, token []byte, err error) {
+  return func(data []byte, atEOF bool) (advance int, token []byte, err error) {
+  	// Return nothing if at end of file and no data passed
+  	if atEOF && len(data) == 0 {
+  		return 0, nil, nil
+  	}
+  	// Find the index of the input of the separator substring
+  	if i := strings.Index(string(data), substr); i >= 0 {
+      // 区切り文字も含めたいので少し修正
+      end := i + len(substr)
+  		return end, data[0:end], nil
+  	}
+  	// If at end of file with data return the data
+  	if atEOF {
+  		return len(data), data, nil
+  	}
+  	return
+  }
+}
 
 /*
 標準入力からフィードを取得して sortableFeed で返す
@@ -46,16 +68,8 @@ func read() []sortableFeed {
   // https://baubaubau.hatenablog.com/entry/2017/11/17/214635#%E6%9B%B8%E3%81%84%E3%81%A6%E3%81%BF%E3%81%9F%E3%82%BD%E3%83%BC%E3%82%B9%E5%85%A8%E9%83%A8
   // 任意の文字列を引数に与えると、splitFunctionな関数を返す関数
   // https://stackoverflow.com/questions/33068644/how-a-scanner-can-be-implemented-with-a-custom-split/33069759
-  delim := []byte("</rss>")
-  var splitFunction = func(data []byte, atEOF bool) (advance int, token []byte, err error) {
-    for i := 0; i < len(data); i++ {
-      if data[i] == delim[0] && data[i+1] == delim[1] && data[i+2] == delim[2] && data[i+3] == delim[3] && data[i+4] == delim[4] && data[i+5] == delim[5] && data[i+6] == delim[6] && data[i+7] == delim[7] && data[i+8] == delim[8]  && data[i+9] == delim[9]  && data[i+10] == delim[10]  && data[i+11] == delim[11]  && data[i+12] == delim[12]  {
-        return i + 12, data[:i+12], nil //tokenをdata[:i+3]としているので、区切り文字は含まれる
-      }
-    }
-    return 0, data, bufio.ErrFinalToken
-  }
-  scanner.Split(splitFunction)
+
+  scanner.Split(SplitAt("</rss>"))
   // scanner.Split(bufio.ScanWords)
   for scanner.Scan() {
     fmt.Println(scanner.Text())
