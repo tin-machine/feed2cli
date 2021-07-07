@@ -17,6 +17,8 @@ func SplitAt(substr string) func(data []byte, atEOF bool) (advance int, token []
   		return 0, nil, nil
   	}
   	// Find the index of the input of the separator substring
+    // strings.Index()で文字列の位置を取得できる https://itsakura.com/go-index
+    // この関数内で「RSS、Atomの末尾を処理する」
   	if i := strings.Index(string(data), substr); i >= 0 {
       // 区切り文字も含めたいので少し修正
       end := i + len(substr)
