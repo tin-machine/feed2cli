@@ -1,6 +1,6 @@
 module github.com/tin-machine/feed2cli
 
-go 1.15
+go 1.16
 
 require (
 	github.com/gorilla/feeds v1.1.1

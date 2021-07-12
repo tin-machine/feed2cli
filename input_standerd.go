@@ -32,6 +32,32 @@ func SplitAt(substr string) func(data []byte, atEOF bool) (advance int, token []
   }
 }
 
+func splitFeed(data []byte, atEOF bool) (advance int, token []byte, err error) {
+  	// Return nothing if at end of file and no data passed
+  	if atEOF && len(data) == 0 {
+  		return 0, nil, nil
+  	}
+    // strings.Index()で文字列の位置を取得できる https://itsakura.com/go-index
+    // この関数内で「RSS、Atomの末尾を処理する」
+  	if i := strings.Index(string(data), "</rss>"); i >= 0 {
+      // 区切り文字も含めたいので少し修正
+      end := i + len("</rss>")
+  		return end, data[0:end], nil
+  	}
+
+  	if i := strings.Index(string(data), "</feed>"); i >= 0 {
+      // 区切り文字も含めたいので少し修正
+      end := i + len("</feed>")
+  		return end, data[0:end], nil
+  	}
+
+  	// If at end of file with data return the data
+  	if atEOF {
+  		return len(data), data, nil
+  	}
+  	return
+}
+
 /*
 標準入力からフィードを取得して sortableFeed で返す
 
@@ -71,7 +97,8 @@ func read() []sortableFeed {
   // 任意の文字列を引数に与えると、splitFunctionな関数を返す関数
   // https://stackoverflow.com/questions/33068644/how-a-scanner-can-be-implemented-with-a-custom-split/33069759
 
-  scanner.Split(SplitAt("</rss>"))
+  // scanner.Split(SplitAt("</rss>"))
+  scanner.Split(splitFeed)
   // scanner.Split(bufio.ScanWords)
   for scanner.Scan() {
     fmt.Println(scanner.Text())
