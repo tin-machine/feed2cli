@@ -68,7 +68,7 @@ todo 標準入力から複数のフィードが与えられた特に分割する
 */
 func read() []sortableFeed {
 	fp := gofeed.NewParser()
-  newFeed, err6 := fp.ParseURL("https://b.hatena.ne.jp/entrylist/general.rss")
+  // newFeed, err6 := fp.ParseURL("https://b.hatena.ne.jp/entrylist/general.rss")
 
 	// b, _ := ioutil.ReadAll(os.Stdin)
 	// newFeed, err6 := fp.ParseString(string(b))
@@ -98,7 +98,7 @@ func read() []sortableFeed {
   // https://stackoverflow.com/questions/33068644/how-a-scanner-can-be-implemented-with-a-custom-split/33069759
 
   // 最後にreturnするためのスライス
-  slice := [] &sortableFeed{}
+  slice := [] sortableFeed{}
   // scanner.Split(SplitAt("</rss>"))
   scanner.Split(splitFeed)
   // scanner.Split(bufio.ScanWords)
@@ -106,13 +106,13 @@ func read() []sortableFeed {
     // fmt.Println(scanner.Text())
     fmt.Print("\n\n\n区切ったよ\n\n\n")
     feed, _ := fp.ParseString(scanner.Text())
-    c2 := &sortableFeed{*feed}
+    c2 := sortableFeed{*feed}
     slice = append(slice, c2)
   }
 
-	if err6 != nil {
-		fmt.Println(err6)
-	}
+	// if err6 != nil {
+	// 	fmt.Println(err6)
+	// }
 	// c1 := sortableFeed{*newFeed}
 	// m1 := []sortableFeed{c1}
 	return slice
