@@ -97,18 +97,23 @@ func read() []sortableFeed {
   // 任意の文字列を引数に与えると、splitFunctionな関数を返す関数
   // https://stackoverflow.com/questions/33068644/how-a-scanner-can-be-implemented-with-a-custom-split/33069759
 
+  // 最後にreturnするためのスライス
+  slice := [] &sortableFeed{}
   // scanner.Split(SplitAt("</rss>"))
   scanner.Split(splitFeed)
   // scanner.Split(bufio.ScanWords)
   for scanner.Scan() {
-    fmt.Println(scanner.Text())
+    // fmt.Println(scanner.Text())
     fmt.Print("\n\n\n区切ったよ\n\n\n")
+    feed, _ := fp.ParseString(scanner.Text())
+    c2 := &sortableFeed{*feed}
+    slice = append(slice, c2)
   }
 
 	if err6 != nil {
 		fmt.Println(err6)
 	}
-	c1 := sortableFeed{*newFeed}
-	m1 := []sortableFeed{c1}
-	return m1
+	// c1 := sortableFeed{*newFeed}
+	// m1 := []sortableFeed{c1}
+	return slice
 }
