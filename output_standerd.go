@@ -5,7 +5,7 @@ package main
 */
 
 import (
-	"fmt"
+  "fmt"
 	"log"
 	"time"
 
@@ -15,10 +15,10 @@ import (
 /*
 標準出力に出力
 */
-func OutputStanderd(feed []sortableFeed) {
+func OutputStanderd(feed []*sortableFeed) {
 
   for _, f := range feed {
-	  c1 := &f
+	  c1 := f
 	  now := time.Now()
 	  output_feed := &feeds.Feed{
 	  	Title:       c1.Title,
@@ -41,13 +41,7 @@ func OutputStanderd(feed []sortableFeed) {
 	  if err != nil {
 	  	log.Fatal(err)
 	  }
-
-	  fmt.Print(rss)
-    fmt.Println("")
-    fmt.Println("")
-    fmt.Println("")
-    fmt.Println("ひとつ区切り")
-    fmt.Println("")
+    fmt.Print(rss)
   }
 
 }

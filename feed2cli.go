@@ -15,6 +15,7 @@ https://media.growth-and.com/go%E8%A8%80%E8%AA%9E%E3%81%A7rss%E3%83%95%E3%82%A3%
 全てまとまってる気がする
 
 todo
+ * 『標準入力からの入力』を『マージ』して『標準出力に出す』という処理
  * 関数を渡っていく変数はポインタの方が、効率が良さそう。
   * ほぼ同じ内容のメモリを関数に渡す( コピーする )よりはポインタだけが渡り、同じアドレス上のデータをどんどん上書きしていく。
   * ポインタを返すように関数を書き直す
@@ -54,7 +55,8 @@ func main() {
 		//fmt.Println("パイプで渡された内容(FD値0以外):", string(b))
 		s := read()
 		OutputStanderd(s)
+    Merge(s)
 	}
-	StoreFeed("https://b.hatena.ne.jp/entrylist/general.rss", "feeds")
-	StoreFeed("https://b.hatena.ne.jp/entrylist/it.rss", "feeds")
+	// StoreFeed("https://b.hatena.ne.jp/entrylist/general.rss", "feeds")
+	// StoreFeed("https://b.hatena.ne.jp/entrylist/it.rss", "feeds")
 }
