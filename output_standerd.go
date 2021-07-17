@@ -10,12 +10,13 @@ import (
 	"time"
 
 	"github.com/gorilla/feeds"
+  "github.com/mmcdole/gofeed"
 )
 
 /*
 標準出力に出力
 */
-func OutputStanderd(feed []*sortableFeed) {
+func OutputStanderd(feed []*gofeed.Feed) {
 
   for _, f := range feed {
 	  c1 := f

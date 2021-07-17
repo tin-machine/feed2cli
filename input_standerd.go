@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
   "bufio"
   "strings"
@@ -34,7 +33,7 @@ func splitFeed(data []byte, atEOF bool) (advance int, token []byte, err error) {
 /*
 標準入力からフィードを取得して スライスの中にsortableFeedのポインタが入った形で返す
 */
-func read() []*sortableFeed {
+func read() []*gofeed.Feed{
 	fp := gofeed.NewParser()
 
   // バッファサイズを大きくする必要があった https://mickey24.hatenablog.com/entry/bufio_scanner_line_length
@@ -48,13 +47,11 @@ func read() []*sortableFeed {
   scanner.Buffer(buf, maxBufSize)
 
   // 最後にreturnするためのスライス
-  slice := []*sortableFeed{}
+  slice := []*gofeed.Feed{}
   scanner.Split(splitFeed)
   for scanner.Scan() {
-    fmt.Print("\n\n\n区切ったよ\n\n\n")
     feed, _ := fp.ParseString(scanner.Text())
-    c2 := &sortableFeed{*feed}
-    slice = append(slice, c2)
+    slice = append(slice, feed)
   }
 
 	return slice
