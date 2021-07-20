@@ -16,8 +16,6 @@ https://media.growth-and.com/go%E8%A8%80%E8%AA%9E%E3%81%A7rss%E3%83%95%E3%82%A3%
 
 todo
  * マージする処理は『クロージャ』で書くとシンプルになりそう
- * 「フィードのファイルをざっくりパイプに投げる」と「パイプをバッファリングしながらフィードをまとめて一つのフィードにまとめる」を作りたい
-   * 最後にファイルなり標準出力に出力する関数は別に作る
  * 「インプット」「操作(フィルター、マージ」「アウトプット」がわかりやすいかも。UNIX哲学を見てから決める
  * 引数の処理
   * jqコマンドの不便さは | で区切れない( オプションを " " でくくる必要があるところかな、と思う )
@@ -48,8 +46,10 @@ func main() {
 		//fmt.Println("パイプで渡された内容(FD値0以外):", string(b))
 		s := read()
 		// OutputStanderd(s)
-    merged := Merge(s)
-		OutputStanderd(merged)
+    // merged := Merge(s)
+		// OutputStanderd(merged)
+    diffed := Diff(s)
+		OutputStanderd(diffed)
 	}
 	// StoreFeed("https://b.hatena.ne.jp/entrylist/general.rss", "feeds")
 	// StoreFeed("https://b.hatena.ne.jp/entrylist/it.rss", "feeds")
