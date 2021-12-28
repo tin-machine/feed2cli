@@ -4,10 +4,19 @@ import (
 	"os"
   "bufio"
   "strings"
+  "unicode"
 
 	"github.com/mmcdole/gofeed"
 )
 
+/*
+標準入力から複数のfeedを連続して受け取れるように、
+それぞれのfeedを分離できるようにする。
+末尾が</rss>や</feed>で終わることを期待している
+
+scanner.Split(splitFeed) という形で利用する。
+https://qiita.com/k_dutch/items/4e983597ee091e517659
+*/
 func splitFeed(data []byte, atEOF bool) (advance int, token []byte, err error) {
   	// Return nothing if at end of file and no data passed
   	if atEOF && len(data) == 0 {
@@ -31,7 +40,18 @@ func splitFeed(data []byte, atEOF bool) (advance int, token []byte, err error) {
 }
 
 /*
-標準入力からフィードを取得して スライスの中にsortableFeedのポインタが入った形で返す
+絵文字が含まれるとgofeedがエラーになるので除去する
+https://qiita.com/sshon/items/1f3b14aed47217c72242
+*/
+func printOnly(r rune) rune {
+  if unicode.IsPrint(r) {
+      return r
+  }
+  return -1
+}
+
+/*
+標準入力からフィードを取得して gofeed.Feedのスライスで返す
 */
 func read() []*gofeed.Feed{
 	fp := gofeed.NewParser()
@@ -50,7 +70,9 @@ func read() []*gofeed.Feed{
   slice := []*gofeed.Feed{}
   scanner.Split(splitFeed)
   for scanner.Scan() {
-    feed, _ := fp.ParseString(scanner.Text())
+    // feed, _ := fp.ParseString(scanner.Text())
+    xmlData := strings.Map(printOnly, string(scanner.Text()))
+    feed, _ := fp.ParseString(xmlData)
     slice = append(slice, feed)
   }
 

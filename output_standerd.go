@@ -1,7 +1,7 @@
 package main
 
 /*
-標準出力に出力する
+Slackに出力する
 */
 
 import (

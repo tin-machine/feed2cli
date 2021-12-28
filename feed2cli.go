@@ -15,6 +15,9 @@ https://media.growth-and.com/go%E8%A8%80%E8%AA%9E%E3%81%A7rss%E3%83%95%E3%82%A3%
 全てまとまってる気がする
 
 todo
+ * argv[0]で振る舞いを変えたい
+  * 実行コマンドのファイル名はシンボリックリンク名を取得できるか? https://golang.hateblo.jp/entry/2018/10/22/080000
+   * シンボリックリンクを沢山つくるようにしたい。busyboxみたく。で、名前は取得できるか。
  * マージする処理は『クロージャ』で書くとシンプルになりそう
  * 「インプット」「操作(フィルター、マージ」「アウトプット」がわかりやすいかも。UNIX哲学を見てから決める
  * 引数の処理
@@ -26,8 +29,6 @@ todo
  * 「リモートのフィードが消えた場合」を実装する
  * フィードの時刻時刻がnowを修正したい。時刻をパースしてtimeの形式に変更する
  * デバックフラグをつけたい
- * 実行コマンドのファイル名はシンボリックリンク名を取得できるか? https://golang.hateblo.jp/entry/2018/10/22/080000
-  * シンボリックリンクを沢山つくるようにしたい。busyboxみたく。で、名前は取得できるか。
  * 差分をSlack
  * s3への書き出し( httpで公開して、リーダーで読みたい )
   * golangでのawsライブラリ
@@ -45,11 +46,13 @@ func main() {
 		//b, _ := ioutil.ReadAll(os.Stdin)
 		//fmt.Println("パイプで渡された内容(FD値0以外):", string(b))
 		s := read()
-		// OutputStanderd(s)
+		//  OutputStanderd(s)
     // merged := Merge(s)
 		// OutputStanderd(merged)
-    diffed := Diff(s)
-		OutputStanderd(diffed)
+    // diffed := Diff(s)
+		// OutputStanderd(diffed)
+
+		OutputSlack(s)
 	}
 	// StoreFeed("https://b.hatena.ne.jp/entrylist/general.rss", "feeds")
 	// StoreFeed("https://b.hatena.ne.jp/entrylist/it.rss", "feeds")
