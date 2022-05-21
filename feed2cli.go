@@ -28,8 +28,10 @@ func main() {
 			os.Symlink("feed2cli", "slackRss")
 		}
 	} else {
+		// input_standerd.go にある read() を用いてフィードを分割
 		s := read()
-		switch os.Args[0] {
+		// カレントディレクトリにシンボリックリンクを作ってある場合 ./ を削除
+		switch cmd {
 		case "mergeRss":
 			merged := Merge(s)
 			OutputStanderd(merged)
