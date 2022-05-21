@@ -2,10 +2,12 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"strings"
 	"unicode"
 
+	_ "github.com/k0kubun/pp"
 	"github.com/mmcdole/gofeed"
 )
 
@@ -79,10 +81,10 @@ func read() []*gofeed.Feed {
 		slice = append(slice, feed)
 	}
 
-	// if os.Args[1] == "-d" {
-	//   fmt.Printf("input_standerd で slice の個数は %d\n", len(slice))
-	//   pp.Print(slice)
-	// }
+	if len(os.Args) > 1 && os.Args[1] == "-d" {
+		fmt.Printf("input_standerd で slice の個数は %d\n", len(slice))
+		// pp.Print(slice)
+	}
 
 	return slice
 }

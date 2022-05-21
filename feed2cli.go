@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"golang.org/x/crypto/ssh/terminal"
 )
@@ -11,6 +12,9 @@ func main() {
   /*
   最初のオプションとして -d が与えられていたらデバック出力
   */
+	/*
+	  最初のオプションとして -d が与えられていたらデバック出力
+	*/
 	if len(os.Args) >= 2 && os.Args[1] == "-d" {
 		for i, v := range os.Args {
 			fmt.Printf("args[%d] -> %s\n", i, v)
@@ -34,6 +38,7 @@ func main() {
 			merged := Merge(s)
 			OutputStanderd(merged)
 		case "diffRss":
+			fmt.Println("diffRss")
 			diffed := Diff(s)
 			OutputStanderd(diffed)
 		case "slackRss":

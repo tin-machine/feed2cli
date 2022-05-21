@@ -11,10 +11,6 @@ import (
 )
 
 func Merge(fs []*gofeed.Feed) []*gofeed.Feed {
-	if len(os.Args) >= 2 && os.Args[1] == "-d" {
-		fmt.Printf("Merge で []*gofeed.Feed の個数は %d\n[]*gofeed.Feed の中身は ↓", len(fs))
-		pp.Print(fs)
-	}
 	fp := gofeed.NewParser()
 
 	// returnするフィードを作る
@@ -46,5 +42,19 @@ func Merge(fs []*gofeed.Feed) []*gofeed.Feed {
 	sort.Sort(mergedFeed)
 
 	output_feed := []*gofeed.Feed{mergedFeed}
+	// デバック用
+	if len(os.Args) >= 2 && os.Args[1] == "-d" {
+	}
+	if len(os.Args) > 1 && os.Args[1] == "-d" {
+		fmt.Printf("merge.go で fs( 入力されたfeed)の個数は %d\n", len(fs))
+		fmt.Printf("merge.go で fs[0].Items の個数は %d\n", len(fs[0].Items))
+		fmt.Printf("merge.go で fs[1].Items の個数は %d\n", len(fs[1].Items))
+		fmt.Printf("merge.go で output_feed の個数は %d\n", len(output_feed))
+		fmt.Printf("merge.go で output_feed.Items の個数は %d\n", len(output_feed[0].Items))
+		// pp.Print(output_feed)
+		fmt.Printf("Merge で []*gofeed.Feed の個数は %d\n[]*gofeed.Feed の中身は ↓", len(fs))
+		pp.Print(fs)
+	}
+
 	return output_feed
 }
