@@ -15,8 +15,6 @@ func Merge(fs []*gofeed.Feed) []*gofeed.Feed {
 	// デバック用
 	if len(os.Args) >= 2 && os.Args[1] == "-d" {
 		fmt.Printf("Merge で fs( 入力されたfeed)の個数は %d\n", len(fs))
-		fmt.Printf("Merge で fs[0].Items の個数は %d\n", len(fs[0].Items))
-		fmt.Printf("Merge で fs[1].Items の個数は %d\n", len(fs[1].Items))
 	}
 
 	// returnするフィードを作る
@@ -32,6 +30,7 @@ func Merge(fs []*gofeed.Feed) []*gofeed.Feed {
 		if len(os.Args) > 1 && os.Args[1] == "-d" {
 			// フィードの中のアイテム
 			fmt.Printf("Merge で 何番目のfeedを処理しているか? %d\n", i)
+			fmt.Printf("Merge で fs[%d].Items の個数は %d\n", i, len(fs[0].Items))
 		}
 		for _, f := range v.Items {
 			addFlag := true
