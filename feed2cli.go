@@ -9,9 +9,6 @@ import (
 )
 
 func main() {
-  /*
-  最初のオプションとして -d が与えられていたらデバック出力
-  */
 	/*
 	  最初のオプションとして -d が与えられていたらデバック出力
 	*/
@@ -31,7 +28,6 @@ func main() {
 			os.Symlink("feed2cli", "slackRss")
 		}
 	} else {
-		//fmt.Println("パイプで渡された内容(FD値0以外):", string(b))
 		s := read()
 		switch os.Args[0] {
 		case "mergeRss":
