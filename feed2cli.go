@@ -19,6 +19,7 @@ func main() {
 	}
 
 	// パイプのある無しで振る舞いを変える
+	cmd := strings.TrimLeft(os.Args[0], "./")
 	if terminal.IsTerminal(0) {
 		fmt.Println("パイプ無し(FD値0)")
 		// -s だったらシンボリックリンクを作成する
