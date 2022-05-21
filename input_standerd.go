@@ -77,8 +77,12 @@ func read() []*gofeed.Feed {
 	scanner.Split(splitFeed)
 	for scanner.Scan() {
 		xmlData := strings.Map(printOnly, string(scanner.Text()))
-		feed, _ := fp.ParseString(xmlData)
-		slice = append(slice, feed)
+		feed, err := fp.ParseString(xmlData)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, os.Stderr)
+		} else {
+			slice = append(slice, feed)
+		}
 	}
 
 	if len(os.Args) > 1 && os.Args[1] == "-d" {
