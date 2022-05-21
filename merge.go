@@ -6,12 +6,18 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/k0kubun/pp"
+	_ "github.com/k0kubun/pp"
 	"github.com/mmcdole/gofeed"
 )
 
 func Merge(fs []*gofeed.Feed) []*gofeed.Feed {
 	fp := gofeed.NewParser()
+	// デバック用
+	if len(os.Args) >= 2 && os.Args[1] == "-d" {
+		fmt.Printf("Merge で fs( 入力されたfeed)の個数は %d\n", len(fs))
+		fmt.Printf("Merge で fs[0].Items の個数は %d\n", len(fs[0].Items))
+		fmt.Printf("Merge で fs[1].Items の個数は %d\n", len(fs[1].Items))
+	}
 
 	// returnするフィードを作る
 	feedData := `<feed xmlns="http://www.w3.org/2005/Atom">
@@ -21,8 +27,12 @@ func Merge(fs []*gofeed.Feed) []*gofeed.Feed {
 	mergedFeed, _ := fp.Parse(strings.NewReader(feedData))
 
 	// 引数で与えられたいくつかのフィード
-	for _, v := range fs {
-		// フィードの中のアイテム
+	for i, v := range fs {
+		// デバック用コード
+		if len(os.Args) > 1 && os.Args[1] == "-d" {
+			// フィードの中のアイテム
+			fmt.Printf("Merge で 何番目のfeedを処理しているか? %d\n", i)
+		}
 		for _, f := range v.Items {
 			addFlag := true
 			// マージ用のフィードのアイテムと比較していく
@@ -43,17 +53,10 @@ func Merge(fs []*gofeed.Feed) []*gofeed.Feed {
 
 	output_feed := []*gofeed.Feed{mergedFeed}
 	// デバック用
-	if len(os.Args) >= 2 && os.Args[1] == "-d" {
-	}
 	if len(os.Args) > 1 && os.Args[1] == "-d" {
-		fmt.Printf("merge.go で fs( 入力されたfeed)の個数は %d\n", len(fs))
-		fmt.Printf("merge.go で fs[0].Items の個数は %d\n", len(fs[0].Items))
-		fmt.Printf("merge.go で fs[1].Items の個数は %d\n", len(fs[1].Items))
-		fmt.Printf("merge.go で output_feed の個数は %d\n", len(output_feed))
-		fmt.Printf("merge.go で output_feed.Items の個数は %d\n", len(output_feed[0].Items))
-		// pp.Print(output_feed)
+		fmt.Printf("Merge で output_feed の個数は %d\n", len(output_feed))
+		fmt.Printf("Merge で output_feed.Items の個数は %d\n", len(output_feed[0].Items))
 		fmt.Printf("Merge で []*gofeed.Feed の個数は %d\n[]*gofeed.Feed の中身は ↓", len(fs))
-		pp.Print(fs)
 	}
 
 	return output_feed

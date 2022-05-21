@@ -85,9 +85,9 @@ func read() []*gofeed.Feed {
 		}
 	}
 
+	// デバック用コード
 	if len(os.Args) > 1 && os.Args[1] == "-d" {
 		fmt.Printf("input_standerd で slice の個数は %d\n", len(slice))
-		// pp.Print(slice)
 	}
 
 	return slice
