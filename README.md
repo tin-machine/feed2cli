@@ -29,7 +29,7 @@ $ ./feed2cli -s
 
 はてなブックマークでは気になるキーワードの検索結果、[例えばlinux](https://b.hatena.ne.jp/search/text?q=linux&users=500)に
 
-『&mode=rss』を付けるだけでRSSになります。
+『&mode=rss』を付けるだけでRSSになります。 [参考](https://anond.hatelabo.jp/20220521220951)
 
 例)
 * linux https://b.hatena.ne.jp/search/text?q=linux&users=500&mode=rss'
