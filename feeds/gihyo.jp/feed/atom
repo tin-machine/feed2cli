@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+ <title>gihyo.jp：総合</title>
+ <subtitle>gihyo.jp（総合）の更新情報をお届けします</subtitle>
+ <id>https://gihyo.jp/</id>
+ <link href="https://gihyo.jp/"/>
+ <author>
+  <name>技術評論社</name>
+ </author>
+ <updated>2021-07-12T23:22:00+09:00</updated>
+ <rights>技術評論社 2021</rights>
+ <icon>https://gihyo.jp/assets/templates/gihyojp2007/image/header_logo_gihyo.gif</icon>
+ <entry>
+  <title>2021年7月12日　Linux 5.14-rc1が登場，正式リリースは8月後半か9月前半に ── Linux Daily Topics</title>
+  <link href="https://gihyo.jp/admin/clip/01/linux_dt/202107/12"/>
+  <id>https://gihyo.jp/admin/clip/01/linux_dt/202107/12</id>
+  <published>2021-07-12T16:13:00+09:00</published>
+  <updated>2021-07-12T16:13:00+09:00</updated>
+ <author>
+  <name>階戸アキラ</name>
+ </author>
+  <category scheme="https://gihyo.jp/admin/clip/01/linux_dt" term="Linux Daily Topics" xml:lang="ja" />
+  <summary>Linus Torvaldsは7月11日，次期カーネル「Linux 5.14」の最初のリリース候補（RC）版となる「Linux 5.14-rc1」を公開した。</summary>
+ </entry>
+ <entry>
+  <title>2021年7月12日　新宿の巨大じゃないみけこなど ── 帰ってきた『技評ねこ部通信』</title>
+  <link href="https://gihyo.jp/lifestyle/clip/01/monthly-cat/202107/0712"/>
+  <id>https://gihyo.jp/lifestyle/clip/01/monthly-cat/202107/0712</id>
+  <published>2021-07-12T15:00:00+09:00</published>
+  <updated>2021-07-12T15:00:00+09:00</updated>
+ <author>
+  <name></name>
+ </author>
+  <category scheme="https://gihyo.jp/lifestyle/clip/01/monthly-cat" term="帰ってきた『技評ねこ部通信』" xml:lang="ja" />
+  <summary>巨大なのもよいですが，巨大じゃない方がむしろよい，のです。</summary>
+ </entry>
+ <entry>
+  <title>2021年7月9日号　AMD Sensor Fusion Hubの最新ドライバ，zstdベースのアーカイブ ── Ubuntu Weekly Topics</title>
+  <link href="https://gihyo.jp/admin/clip/01/ubuntu-topics/202107/09"/>
+  <id>https://gihyo.jp/admin/clip/01/ubuntu-topics/202107/09</id>
+  <published>2021-07-09T13:12:00+09:00</published>
+  <updated>2021-07-09T13:12:00+09:00</updated>
+ <author>
+  <name>吉田史</name>
+ </author>
+  <category scheme="https://gihyo.jp/admin/clip/01/ubuntu-topics" term="Ubuntu Weekly Topics" xml:lang="ja" />
+  <summary>最近Linux Kernelにマージされた，AMD Sensor Fusion HubのドライバがUbuntuのOEMカーネルにマージされる見込みです。</summary>
+ </entry>
+ <entry>
+  <title>2021年7月第2週号 1位は，CSSグリッドを使って画像の上に文字やボタンを配置するテクニック，気になるネタは，GitHubがコーディングの提案を行う新しいAIツールをプレビュー ── 週刊Webテク通信</title>
+  <link href="https://gihyo.jp/design/clip/01/weekly-web-tech/202107/08"/>
+  <id>https://gihyo.jp/design/clip/01/weekly-web-tech/202107/08</id>
+  <published>2021-07-08T09:15:20+09:00</published>
+  <updated>2021-07-08T09:15:20+09:00</updated>
+ <author>
+  <name>アシカガコウジ</name>
+ </author>
+  <category scheme="https://gihyo.jp/design/clip/01/weekly-web-tech" term="週刊Webテク通信" xml:lang="ja" />
+  <summary>ネットで見かけたWebテク（Webテクニック・Webテクノロジー）記事から，Webデザイナーの目で厳選したネタを週刊で紹介するこのコーナー。今回は，2021年6月28日～7月4日の間に見つけた記事のベスト5です。</summary>
+ </entry>
+ <entry>
+  <title>2021年7月第2週　あの日に戻る一歩目，ワクチンパスポートが保存可能に ── Android Weekly Topics</title>
+  <link href="https://gihyo.jp/lifestyle/clip/01/awt/202107/08"/>
+  <id>https://gihyo.jp/lifestyle/clip/01/awt/202107/08</id>
+  <published>2021-07-08T09:15:00+09:00</published>
+  <updated>2021-07-08T09:15:00+09:00</updated>
+ <author>
+  <name>傍島康雄</name>
+ </author>
+  <category scheme="https://gihyo.jp/lifestyle/clip/01/awt" term="Android Weekly Topics" xml:lang="ja" />
+  <summary>2021年7月第2週のAndroid関連のニュースをお届けします。</summary>
+ </entry>
+ <entry>
+  <title>2021年7月7日　Linux 5.14でレガシーIDEのサポート終了へ ―カーネルソースツリーから「/dev/ide」を全削除 ── Linux Daily Topics</title>
+  <link href="https://gihyo.jp/admin/clip/01/linux_dt/202107/07"/>
+  <id>https://gihyo.jp/admin/clip/01/linux_dt/202107/07</id>
+  <published>2021-07-07T15:40:00+09:00</published>
+  <updated>2021-07-07T15:40:00+09:00</updated>
+ <author>
+  <name>階戸アキラ</name>
+ </author>
+  <category scheme="https://gihyo.jp/admin/clip/01/linux_dt" term="Linux Daily Topics" xml:lang="ja" />
+  <summary>6月27日にLinux 5.13が無事にリリースされてから1週間が経過し，カーネル開発者たちの多くはすでに次期カーネルとなる「Linux 5.14」へと作業をシフトしている。</summary>
+ </entry>
+ <entry>
+  <title>第673回　カーネルのクラッシュ情報を取得する ── Ubuntu Weekly Recipe</title>
+  <link href="https://gihyo.jp/admin/serial/01/ubuntu-recipe/0673"/>
+  <id>https://gihyo.jp/admin/serial/01/ubuntu-recipe/0673</id>
+  <published>2021-07-07T10:09:00+09:00</published>
+  <updated>2021-07-07T10:09:00+09:00</updated>
+ <author>
+  <name>柴田充也</name>
+ </author>
+  <category scheme="https://gihyo.jp/admin/serial/01/ubuntu-recipe" term="Ubuntu Weekly Recipe" xml:lang="ja" />
+  <summary>今回はカーネルの「クラッシュダンプ」システムを利用して，「問題が起きたときに原因を追求する」方法を紹介します。</summary>
+ </entry>
+ <entry>
+  <title>第150回　Generated Columnを利用してみる ── MySQL道普請便り</title>
+  <link href="https://gihyo.jp/dev/serial/01/mysql-road-construction-news/0150"/>
+  <id>https://gihyo.jp/dev/serial/01/mysql-road-construction-news/0150</id>
+  <published>2021-07-06T09:15:00+09:00</published>
+  <updated>2021-07-06T09:15:00+09:00</updated>
+ <author>
+  <name>木村浩一郎</name>
+ </author>
+  <category scheme="https://gihyo.jp/dev/serial/01/mysql-road-construction-news" term="MySQL道普請便り" xml:lang="ja" />
+  <summary>今回は，MySQL 5.7.6から導入されたGenerated Columnに関して紹介していきます。</summary>
+ </entry>
+ <entry>
+  <title>2021年7月2日　上から目線！ ── 帰ってきた『技評ねこ部通信』</title>
+  <link href="https://gihyo.jp/lifestyle/clip/01/monthly-cat/202107/0702"/>
+  <id>https://gihyo.jp/lifestyle/clip/01/monthly-cat/202107/0702</id>
+  <published>2021-07-02T15:00:00+09:00</published>
+  <updated>2021-07-02T15:00:00+09:00</updated>
+ <author>
+  <name></name>
+ </author>
+  <category scheme="https://gihyo.jp/lifestyle/clip/01/monthly-cat" term="帰ってきた『技評ねこ部通信』" xml:lang="ja" />
+  <summary>上からでも下からでも目線ください！</summary>
+ </entry>
+ <entry>
+  <title>2021年7月2日号　帰ってきた壁紙コンテスト、21.10のデザイン変更 ── Ubuntu Weekly Topics</title>
+  <link href="https://gihyo.jp/admin/clip/01/ubuntu-topics/202107/02"/>
+  <id>https://gihyo.jp/admin/clip/01/ubuntu-topics/202107/02</id>
+  <published>2021-07-02T09:40:00+09:00</published>
+  <updated>2021-07-02T09:40:00+09:00</updated>
+ <author>
+  <name>吉田史</name>
+ </author>
+  <category scheme="https://gihyo.jp/admin/clip/01/ubuntu-topics" term="Ubuntu Weekly Topics" xml:lang="ja" />
+  <summary>Ubuntuの定番，壁紙コンテストがしばらくの休眠を経て帰ってきました。ユーザーから投稿された写真の人気投票を行い，最終的にUbuntuのリリースイメージに含めるUbuntu定番の企画です。</summary>
+ </entry>
+ <entry>
+  <title>第71回　MySQL Database Serviceとアプリケーション，一足早い次期メジャーバージョンPostgreSQL 14情報 ── OSSデータベース取り取り時報</title>
+  <link href="https://gihyo.jp/dev/serial/01/oss-db-various-news/0071"/>
+  <id>https://gihyo.jp/dev/serial/01/oss-db-various-news/0071</id>
+  <published>2021-07-01T09:16:00+09:00</published>
+  <updated>2021-07-01T09:16:00+09:00</updated>
+ <author>
+  <name>梶山隆輔，溝口則行</name>
+ </author>
+  <category scheme="https://gihyo.jp/dev/serial/01/oss-db-various-news" term="OSSデータベース取り取り時報" xml:lang="ja" />
+  <summary>OSSコンソーシアム データベース部会のメンバーによる本連載をよろしくお願いいたします。</summary>
+ </entry>
+ <entry>
+  <title>WEB+DB PRESS Vol.122へのお便り ── はまちちゃんとわかばちゃんのREADER'S FORUM―読者のページ</title>
+  <link href="https://gihyo.jp/dev/serial/01/readers-forum/vol123"/>
+  <id>https://gihyo.jp/dev/serial/01/readers-forum/vol123</id>
+  <published>2021-07-01T09:15:40+09:00</published>
+  <updated>2021-07-01T09:15:40+09:00</updated>
+ <author>
+  <name>はまちや2，竹原</name>
+ </author>
+  <category scheme="https://gihyo.jp/dev/serial/01/readers-forum" term="はまちちゃんとわかばちゃんのREADER'S FORUM―読者のページ" xml:lang="ja" />
+  <summary>こんにちはこんにちは!！ 近ごろ世間では情報漏えいやセキュリティの問題がよく取り上げられていますが，昔と違って今はスマートフォンの普及などでサービスも利用者も急激に増えたので問題もどんどん大きくなってきていますね。</summary>
+ </entry>
+ <entry>
+  <title>2021年7月第1週　Windows Subsystem for Androidが登場 ── Android Weekly Topics</title>
+  <link href="https://gihyo.jp/lifestyle/clip/01/awt/202107/01"/>
+  <id>https://gihyo.jp/lifestyle/clip/01/awt/202107/01</id>
+  <published>2021-07-01T09:15:20+09:00</published>
+  <updated>2021-07-01T09:15:20+09:00</updated>
+ <author>
+  <name>傍島康雄</name>
+ </author>
+  <category scheme="https://gihyo.jp/lifestyle/clip/01/awt" term="Android Weekly Topics" xml:lang="ja" />
+  <summary>2021年7月第1週のAndroid関連のニュースをお届けします。</summary>
+ </entry>
+ <entry>
+  <title>2021年7月第1週号 1位は，サインアップ／ログインのUXを良くするヒント，気になるネタは，「Chrome」のサードパーティークッキー廃止が2023年に延期 ── 週刊Webテク通信</title>
+  <link href="https://gihyo.jp/design/clip/01/weekly-web-tech/202107/01"/>
+  <id>https://gihyo.jp/design/clip/01/weekly-web-tech/202107/01</id>
+  <published>2021-07-01T09:15:00+09:00</published>
+  <updated>2021-07-01T09:15:00+09:00</updated>
+ <author>
+  <name>アシカガコウジ</name>
+ </author>
+  <category scheme="https://gihyo.jp/design/clip/01/weekly-web-tech" term="週刊Webテク通信" xml:lang="ja" />
+  <summary>ネットで見かけたWebテク（Webテクニック・Webテクノロジー）記事から，Webデザイナーの目で厳選したネタを週刊で紹介するこのコーナー。今回は，2021年6月21日～27日の間に見つけた記事のベスト5です。</summary>
+ </entry>
+ <entry>
+  <title>2021年6月30日　Apple M1チップをサポートしたLinux 5.13がリリース ── Linux Daily Topics</title>
+  <link href="https://gihyo.jp/admin/clip/01/linux_dt/202106/30"/>
+  <id>https://gihyo.jp/admin/clip/01/linux_dt/202106/30</id>
+  <published>2021-06-30T09:15:00+09:00</published>
+  <updated>2021-06-30T09:15:00+09:00</updated>
+ <author>
+  <name>階戸アキラ</name>
+ </author>
+  <category scheme="https://gihyo.jp/admin/clip/01/linux_dt" term="Linux Daily Topics" xml:lang="ja" />
+  <summary>Linus Torvaldsは6月27日（米国時間），「Linux 5.13」のリリースを発表した。</summary>
+ </entry>
+ <entry>
+  <title>第31回　共有ライブラリと依存関係［3］ ── 続・玩式草子 ―戯れせんとや生まれけん―</title>
+  <link href="https://gihyo.jp/lifestyle/serial/01/ganshiki-soushi-2/0031"/>
+  <id>https://gihyo.jp/lifestyle/serial/01/ganshiki-soushi-2/0031</id>
+  <published>2021-06-30T09:15:00+09:00</published>
+  <updated>2021-06-30T09:15:00+09:00</updated>
+ <author>
+  <name>こじまみつひろ</name>
+ </author>
+  <category scheme="https://gihyo.jp/lifestyle/serial/01/ganshiki-soushi-2" term="続・玩式草子 ―戯れせんとや生まれけん―" xml:lang="ja" />
+  <summary>今回はディストリビューションにとって厄介な&quot;library not found&quot;のエラーを検出する方法と，それに関わるいくつかの話題を紹介しましょう。</summary>
+ </entry>
+ <entry>
+  <title>2021年6月29日　Is NixOS Reproducible? ―NixOS，最小イメージのビルドを100％再現可能に ── Linux Daily Topics</title>
+  <link href="https://gihyo.jp/admin/clip/01/linux_dt/202106/29"/>
+  <id>https://gihyo.jp/admin/clip/01/linux_dt/202106/29</id>
+  <published>2021-06-29T14:50:00+09:00</published>
+  <updated>2021-06-29T14:50:00+09:00</updated>
+ <author>
+  <name>階戸アキラ</name>
+ </author>
+  <category scheme="https://gihyo.jp/admin/clip/01/linux_dt" term="Linux Daily Topics" xml:lang="ja" />
+  <summary>NixOSプロジェクトチームは6月21日，NixOSの最小ISOイメージについて，どの環境でビルドしても，まったく同じバイナリイメージを100％再現できるようになったことを報告した。</summary>
+ </entry>
+ <entry>
+  <title>2021年6月25日号　SiFive製HiFiveボードのサポート，Blenderのサポートサービス ── Ubuntu Weekly Topics</title>
+  <link href="https://gihyo.jp/admin/clip/01/ubuntu-topics/202106/25"/>
+  <id>https://gihyo.jp/admin/clip/01/ubuntu-topics/202106/25</id>
+  <published>2021-06-25T09:50:00+09:00</published>
+  <updated>2021-06-25T09:50:00+09:00</updated>
+ <author>
+  <name>吉田史</name>
+ </author>
+  <category scheme="https://gihyo.jp/admin/clip/01/ubuntu-topics" term="Ubuntu Weekly Topics" xml:lang="ja" />
+  <summary>SiFive製のHiFiveボードについて，公式なサポートステートメントが公開されました。また，「Canonicalによる」「Blender LTSの」有償サポートサービスが発表されました。</summary>
+ </entry>
+ <entry>
+  <title>2021年6月24日　Canonical，3DCGソフトBlenderの商用サポートを提供，Ubuntu以外のOSにも対応 ── Linux Daily Topics</title>
+  <link href="https://gihyo.jp/admin/clip/01/linux_dt/202106/24"/>
+  <id>https://gihyo.jp/admin/clip/01/linux_dt/202106/24</id>
+  <published>2021-06-24T15:41:00+09:00</published>
+  <updated>2021-06-24T15:41:00+09:00</updated>
+ <author>
+  <name>階戸アキラ</name>
+ </author>
+  <category scheme="https://gihyo.jp/admin/clip/01/linux_dt" term="Linux Daily Topics" xml:lang="ja" />
+  <summary>Canonicalは6月23日，オープンソースの3DCGソフトウェアスイート「Blender」の長期サポート版である「Blender LTS」の商用サポートサービスを提供することを明らかにした。</summary>
+ </entry>
+ <entry>
+  <title>2021年6月第4週号 1位は，CSSでの縦横比の設定方法，気になるネタは，Spotifyがライブオーディオアプリ「Greenroom」を提供開始，Clubhouseのライバル誕生 ── 週刊Webテク通信</title>
+  <link href="https://gihyo.jp/design/clip/01/weekly-web-tech/202106/24"/>
+  <id>https://gihyo.jp/design/clip/01/weekly-web-tech/202106/24</id>
+  <published>2021-06-24T09:46:00+09:00</published>
+  <updated>2021-06-24T09:46:00+09:00</updated>
+ <author>
+  <name>アシカガコウジ</name>
+ </author>
+  <category scheme="https://gihyo.jp/design/clip/01/weekly-web-tech" term="週刊Webテク通信" xml:lang="ja" />
+  <summary>ネットで見かけたWebテク（Webテクニック・Webテクノロジー）記事から，Webデザイナーの目で厳選したネタを週刊で紹介するこのコーナー。今回は，2021年6月14日～20日の間に見つけた記事のベスト5です。</summary>
+ </entry>
+</feed>
