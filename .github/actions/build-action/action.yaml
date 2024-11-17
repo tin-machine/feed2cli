@@ -1,0 +1,62 @@
+# .github/actions/build-action/action.yml
+name: 'Go Build Action'
+description: |
+  Go言語のビルドを行う
+  入力 (inputs):
+    go-version-file: go.mod ファイルのパス。
+    goos: ビルド対象のOS（例：linux、darwin）。
+    goarch: ビルド対象のアーキテクチャ（例：amd64、arm64）。
+  出力 (outputs):
+    build-version: ビルドされたアプリケーションのバージョン。
+inputs:
+  go-version-file:
+    description: 'Path to go.mod file to determine Go version'
+    required: true
+  goos:
+    description: 'Target operating system (e.g., linux, darwin)'
+    required: true
+  goarch:
+    description: 'Target architecture (e.g., amd64, arm64)'
+    required: true
+outputs:
+  build-version:
+    description: 'Version of the build'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version-file: ${{ inputs.go-version-file }}
+
+    - name: Get dependencies
+      run: go mod download
+      shell: bash
+
+    - name: Set version
+      id: set_version
+      run: |
+        if [ "${{ github.ref_type }}" = "tag" ]; then
+          echo "version=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+        else
+          echo "version=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+        fi
+      shell: bash
+
+    - name: Build
+      run: |
+        echo "Building for ${{ inputs.goos }}/${{ inputs.goarch }}"
+        mkdir -p build
+        GOOS=${{ inputs.goos }} GOARCH=${{ inputs.goarch }} go build -ldflags="-X main.Version=${{ steps.set_version.outputs.version }}" -v -o build/feed2cli-${{ inputs.goos }}-${{ inputs.goarch }} ./...
+      shell: bash
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: feed2cli-${{ inputs.goos }}-${{ inputs.goarch }}
+        path: build/feed2cli-${{ inputs.goos }}-${{ inputs.goarch }}
+
+    - name: Set output version
+      run: echo "build-version=${{ steps.set_version.outputs.version }}" >> $GITHUB_OUTPUT
+      shell: bash

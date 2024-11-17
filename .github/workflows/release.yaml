@@ -1,0 +1,71 @@
+name: Release
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Build for Release
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goos: [linux, darwin]
+        goarch: [amd64, arm64]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Build Action
+        id: build_step
+        uses: ./.github/actions/build-action
+        with:
+          go-version-file: 'go.mod'
+          goos: ${{ matrix.goos }}
+          goarch: ${{ matrix.goarch }}
+
+  release:
+    runs-on: ubuntu-latest
+    needs: build  # ビルドジョブを依存関係として設定
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: バージョンを上げるコミットを作るため、現在のバージョンを読み込む
+        id: get_version
+        run: |
+          VERSION=$(cat VERSION)
+          echo "Current version: $VERSION"
+          echo "version=$VERSION" >> $GITHUB_ENV
+
+      - name: リリースの際にバージョンを一つ上げるインクリメント処理
+        id: increment_version
+        run: |
+          version=${{ env.version }}
+          IFS='.' read -r major minor patch <<< "${version#v}"
+          patch=$((patch + 1))
+          new_version="v$major.$minor.$patch"
+          echo "New version: $new_version"
+          echo "new_version=$new_version" >> $GITHUB_ENV
+
+      - name: インクリメントした数字をVERSIONファイルの書き込み
+        run: echo "${{ env.new_version }}" > VERSION
+
+      - name: VERSIONファイルをコミットする
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git add VERSION
+          git commit -m "Bump version to ${{ env.new_version }}"
+          git push origin main
+
+      - name: リリース作成とバイナリ添付
+        uses: actions/download-artifact@v4
+
+      - name: リリースの作成
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create ${{ env.new_version }} --generate-notes --title "${{ env.new_version }}"
+          gh release upload "${{ env.new_version }}" feed2cli-darwin-amd64/feed2cli-darwin-amd64 feed2cli-linux-amd64/feed2cli-linux-amd64 feed2cli-linux-arm64/feed2cli-linux-arm64
