@@ -2,47 +2,51 @@ package main
 
 import (
 	"fmt"
-	"os"
-	"strings"
 
 	"golang.org/x/crypto/ssh/terminal"
 )
 
-func main() {
-	/*
-	  最初のオプションとして -d が与えられていたらデバック出力
-	*/
-	if len(os.Args) >= 2 && os.Args[1] == "-d" {
-		for i, v := range os.Args {
-			fmt.Printf("args[%d] -> %s\n", i, v)
-		}
-	}
+/*
 
+todo
+ * argv[0]で振る舞いを変えたい
+  * 実行コマンドのファイル名はシンボリックリンク名を取得できるか?
+   * シンボリックリンクを沢山つくるようにしたい。busyboxみたく。で、名前は取得できるか。
+ * マージする処理は『クロージャ』で書くとシンプルになりそう
+ * 「インプット」「操作(フィルター、マージ」「アウトプット」がわかりやすいかも。UNIX哲学を見てから決める
+ * 引数の処理
+  * jqコマンドの不便さは | で区切れない( オプションを " " でくくる必要があるところかな、と思う )
+  * パイプの処理を学ぶ
+ * 「リモートのフィードが消えた場合」を実装する
+ * フィードの時刻時刻がnowを修正したい。時刻をパースしてtimeの形式に変更する
+ * デバックフラグをつけたい
+ * 差分をSlack
+ * s3への書き出し( httpで公開して、リーダーで読みたい )
+  * golangでのawsライブラリ
+ * オプションをyamlで設定できるように
+ * はてブの自分のブックマークのRSSを監視。追加されたら、差分が発生したら、そのブックマークへのコメントをSlackへ
+  * つまりローカルに「自分のブックマークのRSS」が保存されており、差分をマージ、更にそれらのブックマークを監視する
+*/
+
+// main 関数は、コマンドラインからのインプットを受け取り、
+// パイプが使用されているかどうかに応じて適切な処理を行います。
+func main() {
 	// パイプのある無しで振る舞いを変える
-	cmd := strings.TrimLeft(os.Args[0], "./")
+	// fmt.Println(terminal.IsTerminal(0))
 	if terminal.IsTerminal(0) {
 		fmt.Println("パイプ無し(FD値0)")
-		// -s だったらシンボリックリンクを作成する
-		if len(os.Args) > 1 && os.Args[1] == "-s" {
-			os.Symlink("feed2cli", "mergeRss")
-			os.Symlink("feed2cli", "diffRss")
-			os.Symlink("feed2cli", "slackRss")
-		}
 	} else {
-		// input_standerd.go にある read() を用いてフィードを分割
+		//b, _ := ioutil.ReadAll(os.Stdin)
+		//fmt.Println("パイプで渡された内容(FD値0以外):", string(b))
 		s := read()
-		// カレントディレクトリにシンボリックリンクを作ってある場合 ./ を削除
-		switch cmd {
-		case "mergeRss":
-			merged := Merge(s)
-			OutputStanderd(merged)
-		case "diffRss":
-			// fmt.Println("diffRss")
-			diffed := Diff(s)
-			OutputStanderd(diffed)
-		case "slackRss":
-			OutputSlack(s)
-		}
+		//  OutputStanderd(s)
+		// merged := Merge(s)
+		// OutputStanderd(merged)
+		// diffed := Diff(s)
+		// OutputStanderd(diffed)
 
+		OutputSlack(s)
 	}
+	// StoreFeed("https://b.hatena.ne.jp/entrylist/general.rss", "feeds")
+	// StoreFeed("https://b.hatena.ne.jp/entrylist/it.rss", "feeds")
 }

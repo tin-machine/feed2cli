@@ -1,7 +1,6 @@
 package main
 
 /*
-todo
 「URLから取得する」だけにする。
 ローカルに貯める、は、
 1. URLから取得する <= curl で良いかも
@@ -16,6 +15,7 @@ todo
 貯めるだけ貯めて、teeコマンドと併用して次の標準出力に出せるようにすると良さそう
 
 URLから取得する、は、curlで良いか、パイプで標準入力から受け取り、パースする処理から始める。
+
 */
 
 import (
@@ -31,12 +31,8 @@ import (
 	"github.com/mmcdole/gofeed"
 )
 
-/*
-フィードを取得してローカルに保存する
-
-todo
-「リモートに無くなった」というケースも実装する必要がある
-*/
+// StoreFeed は、指定された URL からフィードを取得し、ローカルに保存します。
+// 既存のフィードと比較し、差分があれば更新を行います。
 func StoreFeed(url string, prefix string) {
 	/*
 		リモートとローカルにフィードが存在する。
@@ -105,6 +101,7 @@ func StoreFeed(url string, prefix string) {
 		output_feed.Add(item)
 	}
 
+	// RSS フォーマットに変換して保存
 	rss, err := output_feed.ToRss()
 	if err != nil {
 		log.Fatal(err)

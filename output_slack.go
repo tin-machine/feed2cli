@@ -21,6 +21,8 @@ import (
 	"github.com/slack-go/slack"
 )
 
+// toSlack は、フィードを受け取り、各アイテムをSlackに送信します。
+// 環境変数 XOXB に設定されているトークンを用いてメッセージを送信します。
 func toSlack(feed []*gofeed.Feed) {
 
 	// アクセストークンを使用してクライアントを生成する。
@@ -36,9 +38,7 @@ func toSlack(feed []*gofeed.Feed) {
 			   画像 Items.Extensions["hatena"]["imageurl"][0].Value
 			*/
 
-			/*
-			   タグURLの処理
-			*/
+			// タグURLの処理
 			re := regexp.MustCompile(`.*?q=(.*)`)
 			li := v.Extensions["taxo"]["topics"][0].Children["Bag"][0].Children["li"]
 			tag_url := ""
@@ -75,9 +75,7 @@ func toSlack(feed []*gofeed.Feed) {
 	}
 }
 
-/*
-slackに出力
-*/
+// OutputSlack は、フィードを受け取り、標準出力およびSlackに出力します。
 func OutputSlack(feed []*gofeed.Feed) {
 
 	for _, f := range feed {

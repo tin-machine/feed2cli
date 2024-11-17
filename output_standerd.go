@@ -1,5 +1,9 @@
 package main
 
+/*
+Slackに出力する
+*/
+
 import (
 	"fmt"
 	"log"
@@ -9,9 +13,7 @@ import (
 	"github.com/mmcdole/gofeed"
 )
 
-/*
-標準出力に出力
-*/
+// OutputStanderd は、フィードを標準出力に出力します。
 func OutputStanderd(feed []*gofeed.Feed) {
 
 	for _, f := range feed {
@@ -25,14 +27,11 @@ func OutputStanderd(feed []*gofeed.Feed) {
 		}
 
 		for _, v := range c1.Items {
-			// 日付を取得する https://leben.mobi/go/time/go-programming/
-			const format1 = "2006-01-02T15:04:05Z"
-			t1, _ := time.Parse(format1, v.Published)
 			item := &feeds.Item{
 				Title:       v.Title,
 				Link:        &feeds.Link{Href: v.Link},
 				Description: v.Description,
-				Created:     t1,
+				Created:     now,
 			}
 			output_feed.Add(item)
 		}

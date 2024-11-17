@@ -1,15 +1,15 @@
 package main
 
 import (
-	"fmt"
-	"os"
 	"sort"
 	"strings"
 
-	_ "github.com/k0kubun/pp"
 	"github.com/mmcdole/gofeed"
 )
 
+// Diff は、二つのフィードを受け取り、古いフィードに存在するが新しいフィードには存在しないアイテムのリストを返します。
+// 引数 fs は、古いフィードが fs[0] に、新しいフィードが fs[1] に格納されていることを前提としています。
+// 戻り値として、新しいフィードに含まれないアイテムだけを持つ新しいフィードを返します。
 func Diff(fs []*gofeed.Feed) []*gofeed.Feed {
 	fp := gofeed.NewParser()
 
@@ -41,16 +41,5 @@ func Diff(fs []*gofeed.Feed) []*gofeed.Feed {
 	sort.Sort(diffFeed)
 
 	output_feed := []*gofeed.Feed{diffFeed}
-
-	// デバック用
-	if len(os.Args) > 1 && os.Args[1] == "-d" {
-		fmt.Printf("diff.go で fs( 入力されたfeed)の個数は %d\n", len(fs))
-		fmt.Printf("diff.go で fs[0].Items の個数は %d\n", len(fs[0].Items))
-		fmt.Printf("diff.go で fs[1].Items の個数は %d\n", len(fs[1].Items))
-		fmt.Printf("diff.go で output_feed の個数は %d\n", len(output_feed))
-		fmt.Printf("diff.go で output_feed.Items の個数は %d\n", len(output_feed[0].Items))
-		// pp.Print(output_feed)
-	}
-
 	return output_feed
 }
