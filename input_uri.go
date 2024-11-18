@@ -20,7 +20,6 @@ URLから取得する、は、curlで良いか、パイプで標準入力から�
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"regexp"
@@ -107,71 +106,7 @@ func StoreFeed(url string, prefix string) {
 		log.Fatalf("RSSの生成に失敗しました: %v", err)
 	}
 
-	if err := ioutil.WriteFile(file, []byte(rss), filePermission); err != nil {
+	if err := os.WriteFile(file, []byte(rss), filePermission); err != nil {
 		log.Fatalf("ファイルの書き込みに失敗しました: %v", err)
 	}
-
-	// f, err := os.OpenFile(file, os.O_RDONLY, 0)
-	// if err != nil {
-	// 	fmt.Println("ファイルが開けませんでした")
-	// 	if os.IsNotExist(err) {
-	// 		// ファイルが存在しないので新しく作る
-	// 		// 先にディレクトリを作る
-	// 		// todo
-	// 		// 「ファイルは存在しない」が「ディレクトリは存在する」というケースに対応する
-	// 		fmt.Println("ファイルが存在しないので、ディレクトリ作成します")
-	// 		os.MkdirAll(dir, 0777)
-	// 	}
-	// } else {
-	// 	// ファイルが存在するので読み込み
-	// 	fmt.Println("ファイルが存在します")
-	// 	oldFeed, _ := fp.Parse(f)
-	// 	c2 := &sortableFeed{*oldFeed}
-	// 	for c2_i, _ := range c2.Items {
-	// 		addFlag := true
-	// 		for c1_i, _ := range c1.Items {
-	// 			// 下記は『同じURLが合ったらbreak、無かったら最後に追加する』という処理にする
-	// 			if c1.Items[c1_i].Link == c2.Items[c2_i].Link {
-	// 				addFlag = false
-	// 				break
-	// 			}
-	// 		}
-	// 		if addFlag {
-	// 			c1.Items = append(c1.Items, c2.Items[c2_i])
-	// 		}
-	// 	}
-	// }
-	// defer f.Close()
-
-	// now := time.Now()
-	// output_feed := &feeds.Feed{
-	// 	Title:       c1.Title,
-	// 	Link:        &feeds.Link{Href: c1.Link},
-	// 	Description: c1.Description,
-	// 	Created:     now,
-	// }
-
-	// for _, v := range c1.Items {
-	// 	item := &feeds.Item{
-	// 		Title:       v.Title,
-	// 		Link:        &feeds.Link{Href: v.Link},
-	// 		Description: v.Description,
-	// 		Created:     now,
-	// 	}
-	// 	output_feed.Add(item)
-	// }
-
-	// // RSS フォーマットに変換して保存
-	// rss, err := output_feed.ToRss()
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// // string 型 → []byte 型
-	// b := []byte(rss)
-
-	// err2 := ioutil.WriteFile(file, b, 0666)
-	// if err2 != nil {
-	// 	fmt.Println(os.Stderr, err)
-	// 	os.Exit(1)
-	// }
 }

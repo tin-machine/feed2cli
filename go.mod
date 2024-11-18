@@ -11,4 +11,5 @@ require (
 	github.com/mmcdole/gofeed v1.1.3
 	github.com/slack-go/slack v0.9.4
 	golang.org/x/crypto v0.0.0-20210616213533-5ff15b29337e
+	golang.org/x/term v0.26.0 // indirect
 )

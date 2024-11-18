@@ -50,7 +50,7 @@ func read() []*gofeed.Feed {
 	buf := make([]byte, initialBufSize)
 	scanner.Buffer(buf, maxBufSize)
 
-	// 最後にreturnするためのスライス
+	// スライスの初期化
 	slice := []*gofeed.Feed{}
 	scanner.Split(splitFeed)
 
@@ -63,6 +63,10 @@ func read() []*gofeed.Feed {
 			continue                               // 無効なフィードがあっても次に進む
 		}
 		slice = append(slice, feed)
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Printf("スキャナーの読み込み時にエラーが発生しました: %v", err)
 	}
 
 	return slice

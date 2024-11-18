@@ -21,25 +21,26 @@ func Merge(fs []*gofeed.Feed) []*gofeed.Feed {
 
 	// フィードをマージするため、アイテムを追加
 	for _, v := range fs {
-		// フィードの中のアイテム
 		for _, f := range v.Items {
-			addFlag := true
 			// 既存アイテムと比較
-			for j, _ := range mergedFeed.Items {
-				if mergedFeed.Items[j].Link == f.Link {
-					// 同じURLのフィードは追加しない、次のフィードのチェックを行う
-					addFlag = false
-					break
-				}
-			}
-			// 同じURLがなかった( trueのままだった )ら、そのフィードを追加
-			if addFlag {
-				mergedFeed.Items = append(mergedFeed.Items, f)
+			if !itemExists(mergedFeed.Items, f.Link) {
+				mergedFeed.Items = append(mergedFeed.Items, f) // 同じURLがなかったら、そのフィードを追加
 			}
 		}
 	}
+
 	sort.Sort(mergedFeed)
 
 	output_feed := []*gofeed.Feed{mergedFeed}
 	return output_feed
+}
+
+// itemExists は、アイテムのリンクが既に存在するかをチェックします。
+func itemExists(items []*gofeed.Item, link string) bool {
+	for _, item := range items {
+		if item.Link == link {
+			return true // 存在する場合はtrue
+		}
+	}
+	return false // 存在しない場合はfalse
 }

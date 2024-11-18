@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/term"
 )
 
 /*
@@ -33,17 +33,10 @@ todo
 func main() {
 	// パイプのある無しで振る舞いを変える
 	// fmt.Println(terminal.IsTerminal(0))
-	if terminal.IsTerminal(0) {
+	if term.IsTerminal(0) {
 		fmt.Println("パイプ無し(FD値0)")
 	} else {
-		//b, _ := ioutil.ReadAll(os.Stdin)
-		//fmt.Println("パイプで渡された内容(FD値0以外):", string(b))
 		s := read()
-		//  OutputStanderd(s)
-		// merged := Merge(s)
-		// OutputStanderd(merged)
-		// diffed := Diff(s)
-		// OutputStanderd(diffed)
 
 		OutputSlack(s)
 	}
