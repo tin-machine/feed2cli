@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"sort"
 	"strings"
 
@@ -15,31 +16,30 @@ func Diff(fs []*gofeed.Feed) []*gofeed.Feed {
 
 	// returnするフィードを作る
 	feedData := `<feed xmlns="http://www.w3.org/2005/Atom">
-  <subtitle>diff Atom</subtitle>
-  </feed>`
+<subtitle>diff Atom</subtitle>
+</feed>`
 
-	diffFeed, _ := fp.Parse(strings.NewReader(feedData))
+	diffFeed, err := fp.Parse(strings.NewReader(feedData))
+	if err != nil {
+		log.Fatalf("Feed parsing failed: %v", err) //  エラー処理を追加
+	}
 
-	/*
-	  ここに差分を取る処理 Mergeの処理にかなり近い。同じURLか違うURLか
-	  fs[0]、１つ目のフィードに古い方、fs[1]に新しいフィードが入っている前提
-	*/
-	for _, f0 := range fs[0].Items {
-		addFlag := true
-		// １つ目のフィードと差分を比較
-		for _, f1 := range fs[1].Items {
-			if f0.Link == f1.Link {
-				addFlag = false
+	// fs[0]とfs[1]のアイテムの差分を取る
+	for _, oldItem := range fs[0].Items {
+		existsInNewFeed := false
+		for _, newItem := range fs[1].Items {
+			if oldItem.Link == newItem.Link {
+				existsInNewFeed = true
 				break
 			}
 		}
-		if addFlag {
-			diffFeed.Items = append(diffFeed.Items, f0)
+		if !existsInNewFeed {
+			diffFeed.Items = append(diffFeed.Items, oldItem)
 		}
 	}
 
-	sort.Sort(diffFeed)
+	sort.Sort(diffFeed) // フィードをソートする
 
-	output_feed := []*gofeed.Feed{diffFeed}
-	return output_feed
+	// 差分フィードを返す
+	return []*gofeed.Feed{diffFeed}
 }

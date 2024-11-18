@@ -16,78 +16,83 @@ import (
 	"time"
 
 	"github.com/gorilla/feeds"
-	"github.com/k0kubun/pp"
 	"github.com/mmcdole/gofeed"
 	"github.com/slack-go/slack"
 )
 
-// toSlack は、フィードを受け取り、各アイテムをSlackに送信します。
-// 環境変数 XOXB に設定されているトークンを用いてメッセージを送信します。
-func toSlack(feed []*gofeed.Feed) {
+// Slackユーザー名定数
+const slackUser = "@kaoru-inoue"
 
+// toSlack は、フィードを受け取り、各アイテムをSlackに送信します。
+func toSlack(feed []*gofeed.Feed) {
 	// アクセストークンを使用してクライアントを生成する。
 	// 環境変数 XOXB に xoxb- から始まるトークンを設定しておくこと
-	c := slack.New(os.Getenv("XOXB"))
+	token := os.Getenv("XOXB")
+	if token == "" {
+		log.Fatal("環境変数XOXBにアクセストークンを設定してください。")
+	}
+	c := slack.New(token)
 
 	for _, f := range feed {
-
 		for _, v := range f.Items {
-			/*
-			   ブックマークコメントURL Items.Extensions["hatena"]["bookmarkCommentListPageUrl"][0].Value
-			   関連サイト Items.Extensions["hatena"]["bookmarkSiteEntriesListUrl"][0].Value
-			   画像 Items.Extensions["hatena"]["imageurl"][0].Value
-			*/
-
-			// タグURLの処理
-			re := regexp.MustCompile(`.*?q=(.*)`)
-			li := v.Extensions["taxo"]["topics"][0].Children["Bag"][0].Children["li"]
-			tag_url := ""
-			for _, li_v := range li {
-				res := re.FindAllStringSubmatch(li_v.Attrs["resource"], -1)
-				pp.Print(res)
-				fmt.Printf("%#v\n", li_v.Attrs["resource"])
-				str2, _ := url.QueryUnescape(res[0][1])
-				tag_url = tag_url + "<" + li_v.Attrs["resource"] + "|" + str2 + "> "
-			}
-
-			markdownText := "<" + v.Link + "|" + v.Title + ">\n" + v.Description
-
-			/*
-			   Attachmentsの方式でやってみる
-			   https://qiita.com/rshibasa/items/c0fc1dfc2a920852ebc3
-			*/
+			tagURL := processTags(v) // タグURLの処理
+			markdownText := fmt.Sprintf("<%s|%s>\n%s", v.Link, v.Title, v.Description)
 			attachment := slack.Attachment{
 				ThumbURL: v.Extensions["hatena"]["imageurl"][0].Value,
-				Text:     "<" + v.Extensions["hatena"]["bookmarkCommentListPageUrl"][0].Value + "|コメント> <" + v.Extensions["hatena"]["bookmarkSiteEntriesListUrl"][0].Value + "|関連>\n" + tag_url,
+				Text:     formatAttachmentText(v, tagURL),
 			}
 			attach := slack.MsgOptionAttachments(attachment)
-
-			channelID, timestamp, err := c.PostMessage("@kaoru-inoue", slack.MsgOptionText(markdownText, false), attach, slack.MsgOptionAsUser(true))
-			fmt.Printf("Message successfully sent to channel %s at %s\n", channelID, timestamp)
-
-			if err != nil {
-				log.Println(err)
-				// ここで、invalid_blocksと出た場合のRSSエントリのオブジェクトもダンプできるようにする。
-				fmt.Printf("%#v\n", v)
-			}
-			time.Sleep(3 * time.Second)
+			sendSlackMessage(c, markdownText, attach)
 		}
+	}
+}
+
+// processTags は、フィードアイテム内のtagsを処理します。
+func processTags(v *gofeed.Item) string {
+	re := regexp.MustCompile(`.*?q=(.*)`)
+	li := v.Extensions["taxo"]["topics"][0].Children["Bag"][0].Children["li"]
+	tagURL := ""
+
+	for _, li_v := range li {
+		res := re.FindAllStringSubmatch(li_v.Attrs["resource"], -1)
+		if len(res) > 0 {
+			if str2, err := url.QueryUnescape(res[0][1]); err == nil {
+				tagURL += fmt.Sprintf("<%s|%s> ", li_v.Attrs["resource"], str2)
+			}
+		}
+	}
+	return tagURL
+}
+
+// formatAttachmentText は、Slackに送信するための添付テキストを整形します。
+func formatAttachmentText(v *gofeed.Item, tagURL string) string {
+	return fmt.Sprintf("<%s|コメント> <%s|関連>\n%s",
+		v.Extensions["hatena"]["bookmarkCommentListPageUrl"][0].Value,
+		v.Extensions["hatena"]["bookmarkSiteEntriesListUrl"][0].Value,
+		tagURL)
+}
+
+// sendSlackMessage は、Slackにメッセージを送信します。
+func sendSlackMessage(c *slack.Client, markdownText string, attach slack.MsgOption) {
+	channelID, timestamp, err := c.PostMessage(slackUser, slack.MsgOptionText(markdownText, false), attach, slack.MsgOptionAsUser(true))
+	if err != nil {
+		log.Printf("Slackへのメッセージ送信でエラーが発生しました: %v", err)
+	} else {
+		fmt.Printf("Message successfully sent to channel %s at %s\n", channelID, timestamp)
 	}
 }
 
 // OutputSlack は、フィードを受け取り、標準出力およびSlackに出力します。
 func OutputSlack(feed []*gofeed.Feed) {
-
 	for _, f := range feed {
-		c1 := f
 		now := time.Now()
 		output_feed := &feeds.Feed{
-			Title:       c1.Title,
-			Link:        &feeds.Link{Href: c1.Link},
-			Description: c1.Description,
+			Title:       f.Title,
+			Link:        &feeds.Link{Href: f.Link},
+			Description: f.Description,
 			Created:     now,
 		}
-		for _, v := range c1.Items {
+		for _, v := range f.Items {
 			item := &feeds.Item{
 				Title:       v.Title,
 				Link:        &feeds.Link{Href: v.Link},
@@ -96,12 +101,14 @@ func OutputSlack(feed []*gofeed.Feed) {
 			}
 			output_feed.Add(item)
 		}
+
 		rss, err := output_feed.ToRss()
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalf("RSS生成に失敗しました: %v", err)
 		}
 		fmt.Print(rss)
-		toSlack(feed)
-	}
 
+		// Slackへも出力
+		toSlack(feed) // ここでtoSlackを呼ぶ
+	}
 }
