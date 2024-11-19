@@ -15,9 +15,7 @@ func Diff(fs []*gofeed.Feed) []*gofeed.Feed {
 	fp := gofeed.NewParser()
 
 	// returnするフィードを作る
-	feedData := `<feed xmlns="http://www.w3.org/2005/Atom">
-<subtitle>diff Atom</subtitle>
-</feed>`
+	feedData := `<feed xmlns="http://www.w3.org/2005/Atom"><subtitle>diff Atom</subtitle></feed>`
 
 	diffFeed, err := fp.Parse(strings.NewReader(feedData))
 	if err != nil {
@@ -38,8 +36,10 @@ func Diff(fs []*gofeed.Feed) []*gofeed.Feed {
 		}
 	}
 
-	sort.Sort(diffFeed) // フィードをソートする
+	// sortableFeedに変換した後にソートする
+	diffSortableFeed := sortableFeed{*diffFeed}
+	sort.Sort(diffSortableFeed) // フィードをソートする
 
 	// 差分フィードを返す
-	return []*gofeed.Feed{diffFeed}
+	return []*gofeed.Feed{&diffSortableFeed.Feed}
 }

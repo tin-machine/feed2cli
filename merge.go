@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"sort"
 	"strings"
 
@@ -13,11 +14,12 @@ func Merge(fs []*gofeed.Feed) []*gofeed.Feed {
 	fp := gofeed.NewParser()
 
 	// マージするフィードを作成
-	feedData := `<feed xmlns="http://www.w3.org/2005/Atom">
-  <subtitle>Example Atom</subtitle>
-  </feed>`
+	feedData := `<feed xmlns="http://www.w3.org/2005/Atom"><subtitle>Example Atom</subtitle></feed>`
 
-	mergedFeed, _ := fp.Parse(strings.NewReader(feedData))
+	mergedFeed, err := fp.Parse(strings.NewReader(feedData))
+	if err != nil {
+		log.Fatalf("Feed parsing failed: %v", err)
+	}
 
 	// フィードをマージするため、アイテムを追加
 	for _, v := range fs {
@@ -31,8 +33,7 @@ func Merge(fs []*gofeed.Feed) []*gofeed.Feed {
 
 	sort.Sort(mergedFeed)
 
-	output_feed := []*gofeed.Feed{mergedFeed}
-	return output_feed
+	return []*gofeed.Feed{mergedFeed}
 }
 
 // itemExists は、アイテムのリンクが既に存在するかをチェックします。

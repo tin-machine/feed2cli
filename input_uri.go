@@ -40,7 +40,7 @@ func StoreFeed(url string, prefix string) {
 	fp := gofeed.NewParser()
 	newFeed, err := fp.ParseURL(url)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatalf("URLからフィードの取得に失敗しました: %v", err)
 	}
 	c1 := &sortableFeed{*newFeed}
 	file := prefix + "/" + regexp.MustCompile(`http(s*):\/\/`).ReplaceAllString(c1.Link, "")
@@ -48,7 +48,17 @@ func StoreFeed(url string, prefix string) {
 	fmt.Println("ファイル名: ", file)
 	fmt.Println("ディレクトリ名: ", dir)
 
-	// ファイルオープン時のエラーハンドリングを強化
+	if err := os.MkdirAll(dir, os.ModePerm); err != nil { // 追加: ディレクトリ作成時のエラーハンドリング
+		log.Fatalf("ディレクトリ作成に失敗しました: %v", err)
+	}
+
+	// 既存のファイルがあるか確認
+	if _, err := os.Stat(file); os.IsNotExist(err) {
+		fmt.Printf("ファイルが存在しないので、新規作成します: %s\n", file)
+	} else if err != nil {
+		log.Fatalf("ファイルの状態確認時にエラー: %v", err)
+	}
+
 	f, err := os.OpenFile(file, os.O_RDONLY, 0)
 	if err != nil {
 		if os.IsNotExist(err) {

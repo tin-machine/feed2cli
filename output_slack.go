@@ -25,8 +25,6 @@ const slackUser = "@kaoru-inoue"
 
 // toSlack は、フィードを受け取り、各アイテムをSlackに送信します。
 func toSlack(feed []*gofeed.Feed) {
-	// アクセストークンを使用してクライアントを生成する。
-	// 環境変数 XOXB に xoxb- から始まるトークンを設定しておくこと
 	token := os.Getenv("XOXB")
 	if token == "" {
 		log.Fatal("環境変数XOXBにアクセストークンを設定してください。")
@@ -36,11 +34,17 @@ func toSlack(feed []*gofeed.Feed) {
 	for _, f := range feed {
 		for _, v := range f.Items {
 			tagURL := processTags(v) // タグURLの処理
+
+			// Slackメッセージ用テキストを生成
 			markdownText := fmt.Sprintf("<%s|%s>\n%s", v.Link, v.Title, v.Description)
+
+			// Attachmentを生成
 			attachment := slack.Attachment{
 				ThumbURL: v.Extensions["hatena"]["imageurl"][0].Value,
 				Text:     formatAttachmentText(v, tagURL),
 			}
+
+			// Slackへメッセージを送信
 			attach := slack.MsgOptionAttachments(attachment)
 			sendSlackMessage(c, markdownText, attach)
 		}
@@ -58,6 +62,8 @@ func processTags(v *gofeed.Item) string {
 		if len(res) > 0 {
 			if str2, err := url.QueryUnescape(res[0][1]); err == nil {
 				tagURL += fmt.Sprintf("<%s|%s> ", li_v.Attrs["resource"], str2)
+			} else {
+				log.Printf("タグURLのデコードに失敗しました: %v", err)
 			}
 		}
 	}
@@ -66,10 +72,17 @@ func processTags(v *gofeed.Item) string {
 
 // formatAttachmentText は、Slackに送信するための添付テキストを整形します。
 func formatAttachmentText(v *gofeed.Item, tagURL string) string {
+	bookmarkCommentURL := v.Extensions["hatena"]["bookmarkCommentListPageUrl"][0].Value
+	bookmarkSiteURL := v.Extensions["hatena"]["bookmarkSiteEntriesListUrl"][0].Value
+
+	if bookmarkCommentURL == "" || bookmarkSiteURL == "" {
+		log.Println("コメントURLまたはサイトURLが空です。")
+	}
+
 	return fmt.Sprintf("<%s|コメント> <%s|関連>\n%s",
-		v.Extensions["hatena"]["bookmarkCommentListPageUrl"][0].Value,
-		v.Extensions["hatena"]["bookmarkSiteEntriesListUrl"][0].Value,
-		tagURL)
+		bookmarkCommentURL,
+		tagURL,
+		bookmarkSiteURL)
 }
 
 // sendSlackMessage は、Slackにメッセージを送信します。
