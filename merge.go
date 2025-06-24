@@ -36,12 +36,3 @@ func Merge(fs []*gofeed.Feed) []*gofeed.Feed {
 	return []*gofeed.Feed{mergedFeed}
 }
 
-// itemExists は、アイテムのリンクが既に存在するかをチェックします。
-func itemExists(items []*gofeed.Item, link string) bool {
-	for _, item := range items {
-		if item.Link == link {
-			return true // 存在する場合はtrue
-		}
-	}
-	return false // 存在しない場合はfalse
-}

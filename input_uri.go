@@ -59,18 +59,7 @@ func StoreFeed(url string, prefix string) {
 		log.Fatalf("ファイルの状態確認時にエラー: %v", err)
 	}
 
-	f, err := os.OpenFile(file, os.O_RDONLY, 0)
-	if err != nil {
-		if os.IsNotExist(err) {
-			fmt.Println("ファイルが存在しないので、ディレクトリ作成します")
-			err := os.MkdirAll(dir, os.ModePerm) // パーミッションを定数から取得
-			if err != nil {
-				log.Fatalf("ディレクトリ作成に失敗しました: %v", err)
-			}
-		} else {
-			log.Fatalf("ファイルを開く際にエラーが発生しました: %v", err)
-		}
-	}
+	f := openOrCreateFileWithDirs(file, dir, 0)
 
 	defer f.Close() // ファイルポインタは必ず閉じる
 
@@ -79,14 +68,7 @@ func StoreFeed(url string, prefix string) {
 	if err == nil {
 		c2 := &sortableFeed{*oldFeed}
 		for _, oldItem := range c2.Items {
-			addFlag := true
-			for _, newItem := range c1.Items {
-				if newItem.Link == oldItem.Link {
-					addFlag = false
-					break
-				}
-			}
-			if addFlag {
+			if !itemExists(c1.Items, oldItem.Link) {
 				c1.Items = append(c1.Items, oldItem)
 			}
 		}
