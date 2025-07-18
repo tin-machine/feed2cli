@@ -1,8 +1,8 @@
 package main
 
 import (
-	"testing"
 	"github.com/mmcdole/gofeed"
+	"testing"
 )
 
 func TestDiff_NormalCase(t *testing.T) {
