@@ -20,9 +20,6 @@ import (
 	"github.com/slack-go/slack"
 )
 
-// Slackユーザー名定数
-const slackUser = "@kaoru-inoue"
-
 // toSlack は、フィードを受け取り、各アイテムをSlackに送信します。
 func toSlack(feed []*gofeed.Feed) {
 	token := os.Getenv("XOXB")
@@ -57,11 +54,11 @@ func processTags(v *gofeed.Item) string {
 	li := v.Extensions["taxo"]["topics"][0].Children["Bag"][0].Children["li"]
 	tagURL := ""
 
-	for _, li_v := range li {
-		res := re.FindAllStringSubmatch(li_v.Attrs["resource"], -1)
+	for _, liV := range li {
+		res := re.FindAllStringSubmatch(liV.Attrs["resource"], -1)
 		if len(res) > 0 {
 			if str2, err := url.QueryUnescape(res[0][1]); err == nil {
-				tagURL += fmt.Sprintf("<%s|%s> ", li_v.Attrs["resource"], str2)
+				tagURL += fmt.Sprintf("<%s|%s> ", liV.Attrs["resource"], str2)
 			} else {
 				log.Printf("タグURLのデコードに失敗しました: %v", err)
 			}
@@ -87,7 +84,11 @@ func formatAttachmentText(v *gofeed.Item, tagURL string) string {
 
 // sendSlackMessage は、Slackにメッセージを送信します。
 func sendSlackMessage(c *slack.Client, markdownText string, attach slack.MsgOption) {
-	channelID, timestamp, err := c.PostMessage(slackUser, slack.MsgOptionText(markdownText, false), attach, slack.MsgOptionAsUser(true))
+	channel := os.Getenv("SLACK_CHANNEL")
+	if channel == "" {
+		log.Fatal("環境変数SLACK_CHANNELに通知先のチャンネル名またはユーザーIDを設定してください。")
+	}
+	channelID, timestamp, err := c.PostMessage(channel, slack.MsgOptionText(markdownText, false), attach, slack.MsgOptionAsUser(true))
 	if err != nil {
 		log.Printf("Slackへのメッセージ送信でエラーが発生しました: %v", err)
 	} else {
@@ -99,7 +100,7 @@ func sendSlackMessage(c *slack.Client, markdownText string, attach slack.MsgOpti
 func OutputSlack(feed []*gofeed.Feed) {
 	for _, f := range feed {
 		now := time.Now()
-		output_feed := &feeds.Feed{
+		outputFeed := &feeds.Feed{
 			Title:       f.Title,
 			Link:        &feeds.Link{Href: f.Link},
 			Description: f.Description,
@@ -112,10 +113,10 @@ func OutputSlack(feed []*gofeed.Feed) {
 				Description: v.Description,
 				Created:     now,
 			}
-			output_feed.Add(item)
+			outputFeed.Add(item)
 		}
 
-		rss, err := output_feed.ToRss()
+		rss, err := outputFeed.ToRss()
 		if err != nil {
 			log.Fatalf("RSS生成に失敗しました: %v", err)
 		}
