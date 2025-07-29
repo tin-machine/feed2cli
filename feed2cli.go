@@ -15,7 +15,7 @@ import (
 func parseArgs() (isDebug, createSymlinks bool, operation string) {
 	flag.BoolVar(&isDebug, "d", false, "Debug output")
 	flag.BoolVar(&createSymlinks, "s", false, "Create symbolic links")
-	flag.StringVar(&operation, "o", "", "Operation: merge, diff, or slack")
+	flag.StringVar(&operation, "o", "", "Operation: merge, diff, slack, or hatena")
 	flag.Parse()
 	return
 }
@@ -30,6 +30,7 @@ func createSymlinksIfNeeded() {
 	_ = os.Symlink("feed2cli", "mergeRss")
 	_ = os.Symlink("feed2cli", "diffRss")
 	_ = os.Symlink("feed2cli", "slackRss")
+	_ = os.Symlink("feed2cli", "hatenaRss")
 }
 
 func dispatchOperation(operation, cmd string, s []*gofeed.Feed) {
@@ -42,8 +43,10 @@ func dispatchOperation(operation, cmd string, s []*gofeed.Feed) {
 		OutputStanderd(diffed)
 	case cmd == "slackRss" || operation == "slack":
 		OutputSlack(s)
+	case cmd == "hatenaRss" || operation == "hatena":
+		OutputHatenaToSlack(s)
 	default:
-		fmt.Println("無効なオプションです。使用可能なオプション: merge, diff, slack")
+		fmt.Println("無効なオプションです。使用可能なオプション: merge, diff, slack, hatena")
 	}
 }
 
@@ -58,7 +61,7 @@ func main() {
 			createSymlinksIfNeeded()
 		}
 		if operation == "" {
-			fmt.Println("操作を指定してください: merge, diff または slack")
+			fmt.Println("操作を指定してください: merge, diff, slack, or hatena")
 			return
 		}
 	} else {
@@ -67,3 +70,4 @@ func main() {
 		dispatchOperation(operation, cmd, s)
 	}
 }
+
