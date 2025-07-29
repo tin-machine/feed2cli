@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"sort"
 	"strings"
 
 	"github.com/mmcdole/gofeed"
@@ -38,7 +37,7 @@ func Diff(fs []*gofeed.Feed) []*gofeed.Feed {
 
 	// sortableFeedに変換した後にソートする
 	diffSortableFeed := sortableFeed{*diffFeed}
-	sort.Sort(diffSortableFeed) // フィードをソートする
+	diffSortableFeed.Sort() // フィードをソートする
 
 	// 差分フィードを返す
 	return []*gofeed.Feed{&diffSortableFeed.Feed}

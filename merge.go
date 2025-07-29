@@ -1,25 +1,13 @@
 package main
 
 import (
-	"log"
-	"sort"
-	"strings"
-
 	"github.com/mmcdole/gofeed"
 )
 
 // Merge は、引数として与えられたフィードのリストをマージし、重複を排除します。
 // 戻り値として、マージされたフィードのスライスを返します。
 func Merge(fs []*gofeed.Feed) []*gofeed.Feed {
-	fp := gofeed.NewParser()
-
-	// マージするフィードを作成
-	feedData := `<feed xmlns="http://www.w3.org/2005/Atom"><subtitle>Example Atom</subtitle></feed>`
-
-	mergedFeed, err := fp.Parse(strings.NewReader(feedData))
-	if err != nil {
-		log.Fatalf("Feed parsing failed: %v", err)
-	}
+	mergedFeed := &sortableFeed{gofeed.Feed{Items: []*gofeed.Item{}}} // 空のフィードを初期化
 
 	// フィードをマージするため、アイテムを追加
 	for _, v := range fs {
@@ -31,8 +19,8 @@ func Merge(fs []*gofeed.Feed) []*gofeed.Feed {
 		}
 	}
 
-	sort.Sort(mergedFeed)
+	mergedFeed.Sort()
 
-	return []*gofeed.Feed{mergedFeed}
+	return []*gofeed.Feed{&mergedFeed.Feed}
 }
 

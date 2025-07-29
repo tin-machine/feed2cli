@@ -19,13 +19,12 @@ URLから取得する、は、curlで良いか、パイプで標準入力から�
 */
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
 	"regexp"
-	"time"
 
-	"github.com/gorilla/feeds"
 	"github.com/mmcdole/gofeed"
 )
 
@@ -74,31 +73,16 @@ func StoreFeed(url string, prefix string) {
 		}
 	}
 
-	now := time.Now()
-	output_feed := &feeds.Feed{
-		Title:       c1.Title,
-		Link:        &feeds.Link{Href: c1.Link},
-		Description: c1.Description,
-		Created:     now,
-	}
+	// マージ後にソートを確実に実行
+	c1.Sort()
 
-	for _, v := range c1.Items {
-		item := &feeds.Item{
-			Title:       v.Title,
-			Link:        &feeds.Link{Href: v.Link},
-			Description: v.Description,
-			Created:     now,
-		}
-		output_feed.Add(item)
-	}
-
-	// RSS フォーマットに変換して保存
-	rss, err := output_feed.ToRss()
+	// gofeed.Feed 構造体を直接JSONとして保存
+	jsonData, err := json.MarshalIndent(c1.Feed, "", "  ")
 	if err != nil {
-		log.Fatalf("RSSの生成に失敗しました: %v", err)
+		log.Fatalf("フィードのJSONエンコードに失敗しました: %v", err)
 	}
 
-	if err := os.WriteFile(file, []byte(rss), filePermission); err != nil {
+	if err := os.WriteFile(file, jsonData, filePermission); err != nil {
 		log.Fatalf("ファイルの書き込みに失敗しました: %v", err)
 	}
 }
