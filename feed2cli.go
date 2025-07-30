@@ -6,16 +6,15 @@ import (
 	"os"
 	"strings"
 
-	"golang.org/x/term"
 	"github.com/mmcdole/gofeed"
+	"golang.org/x/term"
 )
 
-// main 関数は、コマンドラインからのインプットを受け取り、
-// パイプが使用されているかどうかに応じて適切な処理を行います。
-func parseArgs() (isDebug, createSymlinks bool, operation string) {
+func parseArgs() (isDebug, createSymlinks bool, operation, filterType string) {
 	flag.BoolVar(&isDebug, "d", false, "Debug output")
 	flag.BoolVar(&createSymlinks, "s", false, "Create symbolic links")
 	flag.StringVar(&operation, "o", "", "Operation: merge, diff, slack, or hatena")
+	flag.StringVar(&filterType, "f", "", "Filter to apply: hatena_bookmark")
 	flag.Parse()
 	return
 }
@@ -33,25 +32,67 @@ func createSymlinksIfNeeded() {
 	_ = os.Symlink("feed2cli", "hatenaRss")
 }
 
-func dispatchOperation(operation, cmd string, s []*gofeed.Feed) {
+// applyFilter は、フィードのリストを受け取り、指定されたフィルタを適用して
+// FilteredItemのリストを返します。
+func applyFilter(filterType string, feeds []*gofeed.Feed) ([]*FilteredItem, error) {
+	var f Filter
+	switch filterType {
+	case "hatena_bookmark":
+		f = &HatenaBookmarkFilter{}
+	default:
+		// 未対応のフィルタの場合は何もしないが、型を変換する必要がある
+		items := []*gofeed.Item{}
+		for _, feed := range feeds {
+			items = append(items, feed.Items...)
+		}
+		filteredItems := make([]*FilteredItem, len(items))
+		for i, item := range items {
+			filteredItems[i] = &FilteredItem{Item: item}
+		}
+		return filteredItems, nil
+	}
+
+	// 全てのフィードからアイテムを一旦一つのスライスにまとめる
+	allItems := []*gofeed.Item{}
+	for _, feed := range feeds {
+		allItems = append(allItems, feed.Items...)
+	}
+
+	return f.Apply(allItems)
+}
+
+// dispatchOperation は、操作とデータを受け取り、適切な出力関数にディスパッチします。
+// データはフィルタリング済みか否かで型が異なるため、interface{}で受け取ります。
+func dispatchOperation(operation, cmd string, data interface{}) {
 	switch {
 	case cmd == "mergeRss" || operation == "merge":
-		merged := Merge(s)
+		// mergeとdiffはgofeed.Feedを期待するため、型変換が必要
+		feeds := convertToFeeds(data)
+		merged := Merge(feeds)
 		OutputStanderd(merged)
 	case cmd == "diffRss" || operation == "diff":
-		diffed := Diff(s)
+		feeds := convertToFeeds(data)
+		diffed := Diff(feeds)
 		OutputStanderd(diffed)
 	case cmd == "slackRss" || operation == "slack":
-		OutputSlack(s)
+		// slackはgofeed.Feedを期待する
+		feeds := convertToFeeds(data)
+		OutputSlack(feeds)
 	case cmd == "hatenaRss" || operation == "hatena":
-		OutputHatenaToSlack(s)
+		// hatenaはFilteredItemを期待する
+		if items, ok := data.([]*FilteredItem); ok {
+			OutputHatenaToSlack(items)
+		} else {
+			fmt.Println("hatena操作にはフィルタリングされたデータが必要です。")
+		}
 	default:
-		fmt.Println("無効なオプションです。使用可能なオプション: merge, diff, slack, hatena")
+		// デフォルトは標準出力
+		OutputStanderd(data)
 	}
 }
 
 func main() {
-	isDebug, createSymlinks, operation := parseArgs()
+	isDebug, createSymlinks, operation, filterType := parseArgs()
 	if isDebug {
 		printDebugArgs()
 	}
@@ -60,14 +101,48 @@ func main() {
 		if createSymlinks {
 			createSymlinksIfNeeded()
 		}
-		if operation == "" {
-			fmt.Println("操作を指定してください: merge, diff, slack, or hatena")
+		if operation == "" && filterType == "" {
+			fmt.Println("操作またはフィルタを指定してください: -o <operation> | -f <filter>")
 			return
 		}
-	} else {
+	}
+
+	if !term.IsTerminal(0) {
 		s := read()
 		cmd := strings.TrimLeft(os.Args[0], "./")
-		dispatchOperation(operation, cmd, s)
+
+		if filterType != "" {
+			filteredItems, err := applyFilter(filterType, s)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "フィルタの適用に失敗しました: %v\n", err)
+				os.Exit(1)
+			}
+			dispatchOperation(operation, cmd, filteredItems)
+		} else {
+			dispatchOperation(operation, cmd, s)
+		}
 	}
 }
 
+// convertToFeeds は、様々な型のデータを[]*gofeed.Feedに変換します。
+// これは、mergeやdiffなど、gofeed.Feedを直接操作する既存の関数との互換性を保つためです。
+func convertToFeeds(data interface{}) []*gofeed.Feed {
+	if feeds, ok := data.([]*gofeed.Feed); ok {
+		return feeds
+	}
+
+	if items, ok := data.([]*FilteredItem); ok {
+		feedItems := make([]*gofeed.Item, len(items))
+		for i, item := range items {
+			feedItems[i] = item.Item
+		}
+		// 元のフィード情報は失われるが、一つのフィードにまとめる
+		return []*gofeed.Feed{{Items: feedItems}}
+	}
+	
+	if items, ok := data.([]*gofeed.Item); ok {
+		return []*gofeed.Feed{{Items: items}}
+	}
+
+	return nil
+}

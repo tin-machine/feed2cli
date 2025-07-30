@@ -1,78 +1,85 @@
+# feed2cli
+
 ### 概要
 
-最近、RSS復活の兆しが少し見えます。
+RSSフィードをマージ、差分、フィルタリングするためのCLIツールです。
+Plaggerにインスパイアされており、パイプライン処理で手軽にフィードを加工することを目指しています。
 
-[事実上の「Googleリーダー」復活？ ChromeにRSSを用いたフォロー機能が搭載される](https://internet.watch.impress.co.jp/docs/yajiuma/1357390.html)
+例えば、はてなブックマークの複数キーワードの検索結果を追いかける際に、重複するエントリをマージしたり、各エントリにはてなブックマークのコメントを付与したりできます。
 
-ただ... はてなブックマークなどを複数キーワードで追いかけようとすると、
-別のRSSに同じエントリが入ってしまい無駄です。
+### 主な機能
 
-手軽にRSSをマージできるツールが無いかと探しているのですが見つからなかったので
-Golangの勉強がてらRSSのエントリをマージするツールを作成中です。
+*   **merge**: 複数のRSS/Atomフィードをマージし、重複エントリを排除します。
+*   **diff**: 2つのフィードを比較し、新しいフィードにのみ存在するエントリを抽出します。
+*   **filter**: フィードの各エントリに対して、追加情報を付与するフィルタを適用します。
+*   **slack/hatena**: フィルタリングした結果をSlackに通知します。
 
-### ビルドとシンボリックリンク作成
+### ビルドとセットアップ
 
+```sh
+$ go build .
 ```
-$ make
-```
 
-このプログラムはBusyboxのように実行されたシンボリックリンクの名前で振る舞いを変えます。
-最初にシンボリックリンクを作成するため -s オプションでシンボリックリンクを作成してください。
+このプログラムは、`mergeRss`, `diffRss` のように、実行されたファイル名（シンボリックリンク名）で振る舞いを変えます。
+最初にシンボリックリンクを作成するために `-s` オプションを実行してください。
 
-```
+```sh
 $ ./feed2cli -s
 ```
 
-結果
-
 ### 使い方
 
-はてなブックマークでは気になるキーワードの検索結果、[例えばlinux](https://b.hatena.ne.jp/search/text?q=linux&users=500)に
+#### 1. フィードのマージ
 
-『&mode=rss』を付けるだけでRSSになります。 [参考](https://anond.hatelabo.jp/20220521220951)
+はてなブックマークの検索結果など、複数のフィードをマージします。
 
-例)
-* linux https://b.hatena.ne.jp/search/text?q=linux&users=500&mode=rss'
-* docker https://b.hatena.ne.jp/search/text?q=docker&users=500&mode=rss'
-
-↑　上記を ↓ のようにマージします。
-
-```
-$ echo $(curl -L 'http://b.hatena.ne.jp/hotentry/it.rss') \
-  $(curl -L 'http://b.hatena.ne.jp/hotentry.rss') \
-  | ./mergeRss > test.rss
+```sh
+$ # ITカテゴリと総合カテゴリのホットエントリをマージする
+$ echo "$(curl -sL 'http://b.hatena.ne.jp/hotentry/it.rss')" \
+       "$(curl -sL 'http://b.hatena.ne.jp/hotentry.rss')" \
+  | ./mergeRss > merged_feed.rss
 ```
 
-### 比較方法
+#### 2. はてなブックマーク情報のフィルタリング
 
-単純にURLが同じだったらマージしています。
+`-f hatena_bookmark` フィルタを使用すると、フィードの各エントリにはてなブックマークのブックマーク数とコメントが付与されます。
 
-### どの位、減ってるの?
-
-デバック用オプション -d を付けると、各RSSにどの程度エントリが含まれているかを表示しています。
-ですので ↓ のようにすると
-
-```
-$ echo \
-  $(curl 'https://b.hatena.ne.jp/search/text?q=linux&users=500&mode=rss') \
-  $(curl 'https://b.hatena.ne.jp/search/text?q=docker&users=500&mode=rss') \
-  $(curl 'https://b.hatena.ne.jp/search/text?q=docker-compose&users=500&mode=rss') \
-  | ./mergeRss -d | less
+```sh
+$ # ITカテゴリのホットエントリを取得し、はてなブックマーク情報を付与する
+$ curl -sL 'http://b.hatena.ne.jp/hotentry/it.rss' \
+  | ./feed2cli -f hatena_bookmark > filtered_feed.rss
 ```
 
-下記の出力がでてきます。検索結果のページは40個のエントリが含まれていて、
-合計120個になるところ、98個まで減りました( 2022/05/22時点 )
+出力される `filtered_feed.rss` の各エントリのDescriptionには、以下のようにブックマーク数とコメントがHTML形式で追記されます。
 
+```html
+...元のDescription...
+<p>Hatena Bookmark: <b>123</b></p>
+<p><b>Comments:</b></p>
+<ul>
+  <li>user1 (2023/10/27 15:04:05): 面白い！</li>
+  <li>user2 (2023/10/27 16:10:00): これはすごい。</li>
+</ul>
 ```
-input_standerd で slice の個数は 3
-Merge で fs( 入力されたfeed)の個数は 3
-Merge で 何番目のfeedを処理しているか? 0
-Merge で fs[0].Items の個数は 40
-Merge で 何番目のfeedを処理しているか? 1
-Merge で fs[1].Items の個数は 40
-Merge で 何番目のfeedを処理しているか? 2
-Merge で fs[2].Items の個数は 40
-Merge で output_feed の個数は 1
-Merge で output_feed.Items の個数は 98
-Merge で []*gofeed.Feed の個数は 3
+
+#### 3. Slackへの通知
+
+`-o hatena` オプションを使用すると、フィルタリングされた情報を元にSlackへ通知を送信できます。
+この機能を利用するには、環境変数 `XOXB` (Slack Bot Token) と `SLACK_CHANNEL` (投稿先チャンネルID) の設定が必要です。
+
+```sh
+$ export XOXB="xoxb-your-slack-bot-token"
+$ export SLACK_CHANNEL="C0123456789"
+
+$ # ITホットエントリにはてな情報を付与し、Slackに通知する
+$ curl -sL 'http://b.hatena.ne.jp/hotentry/it.rss' \
+  | ./feed2cli -f hatena_bookmark -o hatena
+```
+
+このコマンドを実行すると、以下の処理が行われます。
+
+1.  各エントリがSlackに投稿されます（初回のみ）。
+2.  その投稿のスレッドに、はてなブックマークのコメントが投稿されます。
+3.  再度同じコマンドを実行すると、新しく付いたコメント（差分）のみがスレッドに追加されます。
+
 ```
