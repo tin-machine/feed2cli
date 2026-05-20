@@ -3,8 +3,9 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/mmcdole/gofeed"
@@ -18,7 +19,16 @@ type Filter interface {
 
 // HatenaBookmarkFilter は、はてなブックマークの情報を取得し、
 // それらをFilteredItemに格納するフィルタです。
-type HatenaBookmarkFilter struct{}
+type HatenaBookmarkFilter struct {
+	Client           *http.Client
+	CountEndpoint    string
+	CommentsEndpoint string
+}
+
+const (
+	defaultHatenaCountEndpoint    = "http://api.b.st-hatena.com/entry.count"
+	defaultHatenaCommentsEndpoint = "http://b.hatena.ne.jp/entry/jsonlite/"
+)
 
 // Apply は、gofeed.Itemのリストを受け取り、はてなブックマーク情報を付与した
 // FilteredItemのリストを返します。
@@ -35,8 +45,8 @@ func (f *HatenaBookmarkFilter) Apply(items []*gofeed.Item) ([]*FilteredItem, err
 		var comments []HatenaBookmarkComment
 
 		if item.Link != "" {
-			count, _ = getHatenaBookmarkCount(item.Link)
-			comments, _ = GetHatenaBookmarkComments(item.Link)
+			count, _ = f.getHatenaBookmarkCount(item.Link)
+			comments, _ = f.getHatenaBookmarkComments(item.Link)
 		}
 
 		filteredItems[i] = &FilteredItem{
@@ -51,8 +61,12 @@ func (f *HatenaBookmarkFilter) Apply(items []*gofeed.Item) ([]*FilteredItem, err
 
 // getHatenaBookmarkCount は、指定されたURLのはてなブックマーク数を取得します。
 func getHatenaBookmarkCount(entryURL string) (string, error) {
-	apiURL := fmt.Sprintf("http://api.b.st-hatena.com/entry.count?url=%s", entryURL)
-	resp, err := http.Get(apiURL)
+	return (&HatenaBookmarkFilter{}).getHatenaBookmarkCount(entryURL)
+}
+
+func (f *HatenaBookmarkFilter) getHatenaBookmarkCount(entryURL string) (string, error) {
+	apiURL := buildHatenaURL(f.countEndpoint(), entryURL)
+	resp, err := f.httpClient().Get(apiURL)
 	if err != nil {
 		return "", err
 	}
@@ -62,7 +76,7 @@ func getHatenaBookmarkCount(entryURL string) (string, error) {
 		return "", fmt.Errorf("failed to fetch bookmark count: status code %d", resp.StatusCode)
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
 	}
@@ -76,15 +90,19 @@ func getHatenaBookmarkCount(entryURL string) (string, error) {
 
 // GetHatenaBookmarkComments は、指定されたURLのはてなブックマークコメントを取得します
 func GetHatenaBookmarkComments(entryURL string) ([]HatenaBookmarkComment, error) {
-	apiURL := fmt.Sprintf("http://b.hatena.ne.jp/entry/jsonlite/?url=%s", entryURL)
-	resp, err := http.Get(apiURL)
+	return (&HatenaBookmarkFilter{}).getHatenaBookmarkComments(entryURL)
+}
+
+func (f *HatenaBookmarkFilter) getHatenaBookmarkComments(entryURL string) ([]HatenaBookmarkComment, error) {
+	apiURL := buildHatenaURL(f.commentsEndpoint(), entryURL)
+	resp, err := f.httpClient().Get(apiURL)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		if resp.StatusCode == http.StatusNotFound || resp.ContentLength == 0 {
+		if resp.StatusCode == http.StatusNotFound {
 			return []HatenaBookmarkComment{}, nil
 		}
 		return nil, fmt.Errorf("failed to fetch comments: status code %d", resp.StatusCode)
@@ -100,4 +118,36 @@ func GetHatenaBookmarkComments(entryURL string) ([]HatenaBookmarkComment, error)
 		return nil, err
 	}
 	return data.Bookmarks, nil
+}
+
+func (f *HatenaBookmarkFilter) httpClient() *http.Client {
+	if f.Client != nil {
+		return f.Client
+	}
+	return http.DefaultClient
+}
+
+func (f *HatenaBookmarkFilter) countEndpoint() string {
+	if f.CountEndpoint != "" {
+		return f.CountEndpoint
+	}
+	return defaultHatenaCountEndpoint
+}
+
+func (f *HatenaBookmarkFilter) commentsEndpoint() string {
+	if f.CommentsEndpoint != "" {
+		return f.CommentsEndpoint
+	}
+	return defaultHatenaCommentsEndpoint
+}
+
+func buildHatenaURL(endpoint, entryURL string) string {
+	parsed, err := url.Parse(endpoint)
+	if err != nil {
+		return fmt.Sprintf("%s?url=%s", endpoint, url.QueryEscape(entryURL))
+	}
+	query := parsed.Query()
+	query.Set("url", entryURL)
+	parsed.RawQuery = query.Encode()
+	return parsed.String()
 }

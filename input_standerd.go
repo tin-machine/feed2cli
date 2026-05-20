@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"io"
 	"log"
 	"os"
 	"strings"
@@ -16,12 +17,15 @@ func splitFeed(data []byte, atEOF bool) (advance int, token []byte, err error) {
 	if atEOF && len(data) == 0 {
 		return 0, nil, nil
 	}
-	if i := strings.Index(string(data), "</rss>"); i >= 0 {
-		end := i + len("</rss>")
+	text := string(data)
+	rssEnd := strings.Index(text, "</rss>")
+	atomEnd := strings.Index(text, "</feed>")
+	switch {
+	case rssEnd >= 0 && (atomEnd < 0 || rssEnd < atomEnd):
+		end := rssEnd + len("</rss>")
 		return end, data[0:end], nil
-	}
-	if i := strings.Index(string(data), "</feed>"); i >= 0 {
-		end := i + len("</feed>")
+	case atomEnd >= 0:
+		end := atomEnd + len("</feed>")
 		return end, data[0:end], nil
 	}
 	if atEOF {
@@ -40,13 +44,17 @@ func printOnly(r rune) rune {
 
 // read は、標準入力から取得したデータを gofeed.Feed のスライスとして返します。
 func read() []*gofeed.Feed {
+	return readFrom(os.Stdin)
+}
+
+func readFrom(r io.Reader) []*gofeed.Feed {
 	fp := gofeed.NewParser()
 	// バッファサイズを大きくする必要があった https://mickey24.hatenablog.com/entry/bufio_scanner_line_length
 	const (
 		initialBufSize = 10000
 		maxBufSize     = 1000000
 	)
-	scanner := bufio.NewScanner(os.Stdin)
+	scanner := bufio.NewScanner(r)
 	buf := make([]byte, initialBufSize)
 	scanner.Buffer(buf, maxBufSize)
 

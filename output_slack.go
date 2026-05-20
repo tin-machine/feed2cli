@@ -25,6 +25,14 @@ func OutputSlack(data interface{}) {
 
 	api := slack.New(token)
 
+	outputSlack(data, api, slackChannelID, time.Sleep)
+}
+
+type slackPoster interface {
+	PostMessage(channelID string, options ...slack.MsgOption) (string, string, error)
+}
+
+func outputSlack(data interface{}, api slackPoster, slackChannelID string, sleep func(time.Duration)) {
 	itemsToProcess := convertToFilteredItems(data)
 
 	for _, item := range itemsToProcess {
@@ -46,7 +54,7 @@ func OutputSlack(data interface{}) {
 			log.Printf("Slackへのメッセージ送信でエラーが発生しました: %v", err)
 		}
 		// レートリミット対策
-		time.Sleep(1500 * time.Millisecond)
+		sleep(1500 * time.Millisecond)
 	}
 }
 

@@ -1,8 +1,11 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"io"
 	"log"
+	"os"
 	"strings"
 	"time"
 
@@ -13,6 +16,13 @@ import (
 // OutputStanderd は、フィードを標準出力に出力します。
 // フィルタリング済みか否かに応じて、表示を調整します。
 func OutputStanderd(data interface{}) {
+	if err := OutputStandardTo(os.Stdout, data, time.Now()); err != nil {
+		log.Println(err)
+	}
+}
+
+// OutputStandardTo writes the feed data as RSS to w using now for generated timestamps.
+func OutputStandardTo(w io.Writer, data interface{}, now time.Time) error {
 	var itemsToProcess []*FilteredItem
 
 	// 型アサーションでフィルタリング済みかチェック
@@ -29,11 +39,9 @@ func OutputStanderd(data interface{}) {
 			itemsToProcess[i] = &FilteredItem{Item: item}
 		}
 	} else {
-		log.Println("サポートされていないデータ型です。")
-		return
+		return errors.New("サポートされていないデータ型です")
 	}
 
-	now := time.Now()
 	outFeed := &feeds.Feed{
 		Title:       "feed2cli generated feed",
 		Link:        &feeds.Link{Href: ""},
@@ -74,7 +82,8 @@ func OutputStanderd(data interface{}) {
 
 	rss, err := outFeed.ToRss()
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
-	fmt.Print(rss)
+	_, err = fmt.Fprint(w, rss)
+	return err
 }

@@ -43,5 +43,5 @@ runs:
       shell: bash
 
     - name: Run tests
-      run: go test -v ./...
+      run: go test -race -cover -v ./...
       shell: bash
