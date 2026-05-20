@@ -25,6 +25,17 @@ Plaggerにインスパイアされており、Unixのパイプライン思想に
 $ go build .
 ```
 
+### リリース
+
+リリースバージョンは Git tag を正とします。`v0.0.17` のような tag を push すると GitHub Actions がリリース用バイナリをビルドし、GitHub Release を作成します。
+
+```sh
+$ git checkout main
+$ git pull
+$ git tag -a v0.0.18 -m "v0.0.18"
+$ git push origin v0.0.18
+```
+
 このプログラムは、`mergeRss`, `diffRss` のように、実行されたファイル名（シンボリックリンク名）で振る舞いを変えることもできます。
 最初にシンボリックリンクを作成するために `-s` オプションを実行してください。
 
