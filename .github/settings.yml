@@ -3,7 +3,11 @@ branch_protection_rules:
     required_status_checks:
       strict: true
       contexts:
-        - build
+        - lint_and_test
+        - Build (linux, amd64)
+        - Build (linux, arm64)
+        - Build (darwin, amd64)
+        - Build (darwin, arm64)
     enforce_admins: true
     required_pull_request_reviews:
       dismiss_stale_reviews: true

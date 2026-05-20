@@ -23,4 +23,3 @@ func Merge(fs []*gofeed.Feed) []*gofeed.Feed {
 
 	return []*gofeed.Feed{&mergedFeed.Feed}
 }
-

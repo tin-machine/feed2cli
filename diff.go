@@ -11,6 +11,10 @@ import (
 // 引数 fs は、古いフィードが fs[0] に、新しいフィードが fs[1] に格納されていることを前提としています。
 // 戻り値として、新しいフィードに含まれないアイテムだけを持つ新しいフィードを返します。
 func Diff(fs []*gofeed.Feed) []*gofeed.Feed {
+	if len(fs) < 2 || fs[0] == nil || fs[1] == nil {
+		panic("Diff requires two non-nil feeds")
+	}
+
 	fp := gofeed.NewParser()
 
 	// returnするフィードを作る

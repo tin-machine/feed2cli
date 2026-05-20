@@ -53,7 +53,7 @@ func OutputSlack(data interface{}) {
 // formatSlackAttachment は、FilteredItemからSlackのAttachmentを生成します。
 func formatSlackAttachment(item *FilteredItem) slack.Attachment {
 	var attachmentText strings.Builder
-	
+
 	// 元のDescriptionを追加
 	attachmentText.WriteString(item.Description)
 	attachmentText.WriteString("\n\n")

@@ -1,9 +1,9 @@
 package main
 
 import (
-	"os"
-	"log"
 	"github.com/mmcdole/gofeed"
+	"log"
+	"os"
 )
 
 func itemExists(items []*gofeed.Item, link string) bool {

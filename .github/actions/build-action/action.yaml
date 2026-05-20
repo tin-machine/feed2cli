@@ -48,7 +48,7 @@ runs:
       run: |
         echo "Building for ${{ inputs.goos }}/${{ inputs.goarch }}"
         mkdir -p build
-        GOOS=${{ inputs.goos }} GOARCH=${{ inputs.goarch }} go build -ldflags="-X main.Version=${{ steps.set_version.outputs.version }}" -v -o build/feed2cli-${{ inputs.goos }}-${{ inputs.goarch }} ./...
+        CGO_ENABLED=0 GOOS=${{ inputs.goos }} GOARCH=${{ inputs.goarch }} go build -ldflags="-X main.Version=${{ steps.set_version.outputs.version }}" -v -o build/feed2cli-${{ inputs.goos }}-${{ inputs.goarch }} ./...
       shell: bash
 
     - name: Upload artifacts
@@ -58,5 +58,5 @@ runs:
         path: build/feed2cli-${{ inputs.goos }}-${{ inputs.goarch }}
 
     - name: Set output version
-      run: echo "build-version=${{ steps.set_version.outputs.version }}" >> $GITHUB_OUTPUT
+      run: echo "build-version=${{ steps.set_version.outputs.version }}" >> "$GITHUB_OUTPUT"
       shell: bash

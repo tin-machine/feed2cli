@@ -1,9 +1,9 @@
 package main
 
 import (
+	"github.com/mmcdole/gofeed"
 	"sort"
 	"testing"
-	"github.com/mmcdole/gofeed"
 )
 
 func TestSortableFeed_Empty(t *testing.T) {

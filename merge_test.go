@@ -1,8 +1,8 @@
 package main
 
 import (
-	"testing"
 	"github.com/mmcdole/gofeed"
+	"testing"
 )
 
 func TestMerge_Normal(t *testing.T) {

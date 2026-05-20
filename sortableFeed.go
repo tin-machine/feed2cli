@@ -2,6 +2,7 @@ package main
 
 import (
 	"sort"
+	"time"
 
 	"github.com/mmcdole/gofeed"
 )
@@ -24,24 +25,57 @@ func (sf sortableFeed) Swap(i, j int) {
 // Less は、二つのアイテムを比較して、ソート順を決定します。
 // 公開日が新しいものが先になるようにソートします。
 func (sf sortableFeed) Less(i, j int) bool {
-	// PublishedParsed が nil の場合は、Published を使用して比較
-	// 両方 nil の場合は、等しいとみなす
-	timeI := sf.Items[i].PublishedParsed
-	timeJ := sf.Items[j].PublishedParsed
+	timeI, okI := itemPublishedTime(sf.Items[i])
+	timeJ, okJ := itemPublishedTime(sf.Items[j])
 
-	if timeI == nil && timeJ == nil {
+	if !okI && !okJ {
 		return false // 順序は変わらない
 	}
-	if timeI == nil {
-		return true // nil は常に大きいとみなす (降順なので)
+	if !okI {
+		return false
 	}
-	if timeJ == nil {
-		return false // nil は常に大きいとみなす (降順なので)
+	if !okJ {
+		return true
 	}
-	return timeI.After(*timeJ) // 降順
+	return timeI.After(timeJ) // 降順
 }
 
 // Sort は sortableFeed のアイテムをソートします。
 func (sf *sortableFeed) Sort() {
 	sort.Sort(sf)
+}
+
+func itemPublishedTime(item *gofeed.Item) (time.Time, bool) {
+	if item == nil {
+		return time.Time{}, false
+	}
+	if item.PublishedParsed != nil {
+		return *item.PublishedParsed, true
+	}
+	if item.UpdatedParsed != nil {
+		return *item.UpdatedParsed, true
+	}
+
+	for _, value := range []string{item.Published, item.Updated} {
+		if value == "" {
+			continue
+		}
+		for _, layout := range []string{
+			time.RFC3339,
+			time.RFC3339Nano,
+			time.RFC1123Z,
+			time.RFC1123,
+			time.RFC822Z,
+			time.RFC822,
+			"2006-01-02 15:04:05",
+			"2006-01-02",
+		} {
+			parsed, err := time.Parse(layout, value)
+			if err == nil {
+				return parsed, true
+			}
+		}
+	}
+
+	return time.Time{}, false
 }

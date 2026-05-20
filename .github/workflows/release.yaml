@@ -5,9 +5,22 @@ on:
     branches: [ main ]
 
 jobs:
+  check:
+    name: Lint and Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Check Action
+        uses: ./.github/actions/check-action
+        with:
+          go-version-file: './go.mod'
+
   build:
     name: Build for Release
     runs-on: ubuntu-latest
+    needs: check
     strategy:
       matrix:
         goos: [linux, darwin]
@@ -27,6 +40,8 @@ jobs:
   release:
     runs-on: ubuntu-latest
     needs: build  # ビルドジョブを依存関係として設定
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout code
@@ -65,7 +80,7 @@ jobs:
 
       - name: リリースの作成
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release create ${{ env.new_version }} --generate-notes --title "${{ env.new_version }}"
-          gh release upload "${{ env.new_version }}" feed2cli-darwin-amd64/feed2cli-darwin-amd64 feed2cli-linux-amd64/feed2cli-linux-amd64 feed2cli-linux-arm64/feed2cli-linux-arm64
+          gh release upload "${{ env.new_version }}" feed2cli-darwin-amd64/feed2cli-darwin-amd64 feed2cli-darwin-arm64/feed2cli-darwin-arm64 feed2cli-linux-amd64/feed2cli-linux-amd64 feed2cli-linux-arm64/feed2cli-linux-arm64
