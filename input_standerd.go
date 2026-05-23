@@ -51,8 +51,8 @@ func readFrom(r io.Reader) []*gofeed.Feed {
 	fp := gofeed.NewParser()
 	// バッファサイズを大きくする必要があった https://mickey24.hatenablog.com/entry/bufio_scanner_line_length
 	const (
-		initialBufSize = 10000
-		maxBufSize     = 1000000
+		initialBufSize = initialFeedScannerBufferSize
+		maxBufSize     = maxFeedScannerBufferSize
 	)
 	scanner := bufio.NewScanner(r)
 	buf := make([]byte, initialBufSize)
@@ -79,3 +79,8 @@ func readFrom(r io.Reader) []*gofeed.Feed {
 
 	return slice
 }
+
+const (
+	initialFeedScannerBufferSize = 10000
+	maxFeedScannerBufferSize     = 1000000
+)

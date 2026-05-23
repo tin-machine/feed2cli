@@ -1,27 +1,29 @@
 package main
 
 import (
-	"github.com/mmcdole/gofeed"
-	"log"
+	"fmt"
 	"os"
+
+	"github.com/mmcdole/gofeed"
 )
 
 func itemExists(items []*gofeed.Item, link string) bool {
+	target := normalizeFeedURL(link)
 	for _, item := range items {
-		if item.Link == link {
+		if itemDedupKey(item) == target {
 			return true
 		}
 	}
 	return false
 }
 
-func openOrCreateFileWithDirs(filePath, dir string, perm os.FileMode) *os.File {
+func openOrCreateFileWithDirs(filePath, dir string, perm os.FileMode) (*os.File, error) {
 	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
-		log.Fatalf("ディレクトリ作成に失敗しました: %v", err)
+		return nil, fmt.Errorf("ディレクトリ作成に失敗しました: %w", err)
 	}
 	f, err := os.OpenFile(filePath, os.O_RDONLY|os.O_CREATE, perm)
 	if err != nil {
-		log.Fatalf("ファイルを開く際にエラーが発生しました: %v", err)
+		return nil, fmt.Errorf("ファイルを開く際にエラーが発生しました: %w", err)
 	}
-	return f
+	return f, nil
 }

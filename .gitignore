@@ -3,3 +3,8 @@
 /diffRss
 /slackRss
 /todo.md
+/hatena_state.json
+/hatena_state.sqlite
+/*.sqlite
+/*.sqlite3
+/*.db

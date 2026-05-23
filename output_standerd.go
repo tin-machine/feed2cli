@@ -23,25 +23,38 @@ func OutputStanderd(data interface{}) {
 
 // OutputStandardTo writes the feed data as RSS to w using now for generated timestamps.
 func OutputStandardTo(w io.Writer, data interface{}, now time.Time) error {
-	var itemsToProcess []*FilteredItem
-
-	// 型アサーションでフィルタリング済みかチェック
-	if filtered, ok := data.([]*FilteredItem); ok {
-		itemsToProcess = filtered
-	} else if feeds, ok := data.([]*gofeed.Feed); ok {
-		// フィルタリングされていない場合は、FilteredItemに変換して統一的に扱う
-		items := []*gofeed.Item{}
-		for _, feed := range feeds {
-			items = append(items, feed.Items...)
-		}
-		itemsToProcess = make([]*FilteredItem, len(items))
-		for i, item := range items {
-			itemsToProcess[i] = &FilteredItem{Item: item}
-		}
-	} else {
-		return errors.New("サポートされていないデータ型です")
+	outFeed, err := buildOutputFeed(data, now)
+	if err != nil {
+		return err
 	}
 
+	rss, err := outFeed.ToRss()
+	if err != nil {
+		return err
+	}
+	_, err = fmt.Fprint(w, rss)
+	return err
+}
+
+func OutputAtomTo(w io.Writer, data interface{}, now time.Time) error {
+	outFeed, err := buildOutputFeed(data, now)
+	if err != nil {
+		return err
+	}
+
+	atom, err := outFeed.ToAtom()
+	if err != nil {
+		return err
+	}
+	_, err = fmt.Fprint(w, atom)
+	return err
+}
+
+func buildOutputFeed(data interface{}, now time.Time) (*feeds.Feed, error) {
+	itemsToProcess, err := outputFeedItems(data)
+	if err != nil {
+		return nil, err
+	}
 	outFeed := &feeds.Feed{
 		Title:       "feed2cli generated feed",
 		Link:        &feeds.Link{Href: ""},
@@ -52,7 +65,6 @@ func OutputStandardTo(w io.Writer, data interface{}, now time.Time) error {
 	for _, v := range itemsToProcess {
 		description := v.Description
 
-		// FilteredItemの追加情報をDescriptionに追記
 		var newDescription strings.Builder
 		newDescription.WriteString(v.Description)
 
@@ -71,19 +83,31 @@ func OutputStandardTo(w io.Writer, data interface{}, now time.Time) error {
 		}
 		description = newDescription.String()
 
+		created := now
+		if published, ok := v.PublishedTime(); ok {
+			created = published
+		}
+
 		item := &feeds.Item{
 			Title:       v.Title,
-			Link:        &feeds.Link{Href: v.Link},
+			Link:        &feeds.Link{Href: v.URL},
 			Description: description,
-			Created:     now, // TODO: 元のCreatedタイムスタンプを維持する
+			Created:     created,
+		}
+		if v.ID != "" {
+			item.Id = v.ID
 		}
 		outFeed.Add(item)
 	}
 
-	rss, err := outFeed.ToRss()
-	if err != nil {
-		return err
+	return outFeed, nil
+}
+
+func outputFeedItems(data interface{}) ([]FeedItem, error) {
+	switch data.(type) {
+	case []FeedItem, []FeedDocument, []*FilteredItem, []*gofeed.Feed, []*gofeed.Item:
+		return FeedItemsFromData(data), nil
+	default:
+		return nil, errors.New("サポートされていないデータ型です")
 	}
-	_, err = fmt.Fprint(w, rss)
-	return err
 }

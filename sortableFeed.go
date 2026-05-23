@@ -45,6 +45,24 @@ func (sf *sortableFeed) Sort() {
 	sort.Sort(sf)
 }
 
+func SortFeedItems(items []FeedItem) {
+	sort.SliceStable(items, func(i, j int) bool {
+		timeI, okI := items[i].PublishedTime()
+		timeJ, okJ := items[j].PublishedTime()
+
+		if !okI && !okJ {
+			return false
+		}
+		if !okI {
+			return false
+		}
+		if !okJ {
+			return true
+		}
+		return timeI.After(timeJ)
+	})
+}
+
 func itemPublishedTime(item *gofeed.Item) (time.Time, bool) {
 	if item == nil {
 		return time.Time{}, false

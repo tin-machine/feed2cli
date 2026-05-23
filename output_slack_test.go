@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"errors"
 	"strings"
 	"testing"
@@ -46,7 +47,9 @@ func TestOutputSlackPostsEachItem(t *testing.T) {
 		}},
 	}
 
-	outputSlack(feeds, poster, "C123", sleep)
+	if err := outputSlack(feeds, poster, "C123", sleep); err != nil {
+		t.Fatalf("outputSlack returned error: %v", err)
+	}
 
 	if len(poster.calls) != 2 {
 		t.Fatalf("calls = %d, want 2", len(poster.calls))
@@ -70,16 +73,38 @@ func TestOutputSlackContinuesAfterPostError(t *testing.T) {
 		}},
 	}
 
-	outputSlack(feeds, poster, "C123", func(time.Duration) {})
+	err := outputSlack(feeds, poster, "C123", func(time.Duration) {})
+	if err == nil {
+		t.Fatal("outputSlack returned nil error for failed post")
+	}
 
 	if len(poster.calls) != 2 {
 		t.Fatalf("calls = %d, want 2", len(poster.calls))
 	}
 }
 
+func TestOutputSlackDryRun(t *testing.T) {
+	var out bytes.Buffer
+	feeds := []*gofeed.Feed{
+		{Items: []*gofeed.Item{
+			{Title: "one", Link: "https://example.com/one"},
+		}},
+	}
+
+	if err := outputSlackDryRun(feeds, "C123", &out); err != nil {
+		t.Fatalf("outputSlackDryRun returned error: %v", err)
+	}
+	got := out.String()
+	for _, want := range []string{"slack dry-run: channel=C123 posts=1", `title="one"`} {
+		if !strings.Contains(got, want) {
+			t.Fatalf("dry-run output missing %q:\n%s", want, got)
+		}
+	}
+}
+
 func TestFormatSlackAttachment(t *testing.T) {
-	attachment := formatSlackAttachment(&FilteredItem{
-		Item:                &gofeed.Item{Description: "description"},
+	attachment := formatSlackAttachment(FeedItem{
+		Description:         "description",
 		HatenaBookmarkCount: "3",
 		HatenaBookmarkComments: []HatenaBookmarkComment{
 			{User: "alice", Comment: "nice"},

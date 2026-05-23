@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"time"
@@ -24,22 +25,54 @@ const (
 	stateFilePath = "hatena_state.json"
 )
 
+type hatenaOutputOptions struct {
+	Token                 string
+	Channel               string
+	DryRun                bool
+	SkipChannelValidation bool
+	DryRunWriter          io.Writer
+	API                   slackClient
+	StateBackend          string
+	StatePath             string
+}
+
 // OutputHatenaToSlack は、フィルタリングされたフィードを処理し、Slackに通知します
 func OutputHatenaToSlack(items []*FilteredItem) {
-	token := os.Getenv("XOXB")
-	if token == "" {
-		log.Fatal("環境変数XOXBにアクセストークンを設定してください。")
-	}
-	slackChannelID := os.Getenv("SLACK_CHANNEL")
-	if slackChannelID == "" {
-		log.Fatal("環境変数SLACK_CHANNELに通知先のチャンネル名またはユーザーIDを設定してください。")
-	}
-
-	api := slack.New(token)
-	store := fileHatenaStateStore{path: stateFilePath}
-	if err := outputHatenaToSlack(items, api, slackChannelID, store, time.Sleep); err != nil {
+	if err := OutputHatenaToSlackWithOptions(items, hatenaOutputOptions{}); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func OutputHatenaToSlackWithOptions(items []*FilteredItem, options hatenaOutputOptions) error {
+	slackChannelID := slackChannelFromOptions(options.Channel)
+	store, err := newHatenaStateStore(options)
+	if err != nil {
+		return err
+	}
+	if options.DryRun {
+		return outputHatenaToSlackDryRun(items, slackChannelID, store, options.DryRunWriter)
+	}
+
+	token := options.Token
+	if token == "" {
+		token = slackTokenFromEnv()
+	}
+	if token == "" {
+		return errors.New("Slack tokenを設定してください。FEED2CLI_SLACK_TOKENまたはXOXBを使用できます。")
+	}
+	if slackChannelID == "" {
+		return errors.New("Slack channelを設定してください。-slack-channel、FEED2CLI_SLACK_CHANNEL、SLACK_CHANNELのいずれかを使用できます。")
+	}
+
+	api := options.API
+	if api == nil {
+		api = slack.New(token)
+	}
+	resolvedChannel, err := prepareSlackDestination(api, slackChannelID, !options.SkipChannelValidation)
+	if err != nil {
+		return err
+	}
+	return outputHatenaToSlack(items, api, resolvedChannel, store, time.Sleep)
 }
 
 type hatenaStateStore interface {
@@ -68,15 +101,26 @@ func outputHatenaToSlack(items []*FilteredItem, api slackPoster, slackChannelID 
 	}
 
 	stateChanged := false
+	failed := 0
 
 	for _, item := range items {
 		if item == nil || item.Item == nil {
 			continue
 		}
 		entryURL := item.Link
+		entryKey := itemDedupKey(item.Item)
 		log.Printf("処理中のエントリ: %s", entryURL)
 
-		entryState, exists := state[entryURL]
+		entryState, exists := state[entryKey]
+		if !exists && entryKey != entryURL {
+			if rawState, rawExists := state[entryURL]; rawExists {
+				entryState = rawState
+				state[entryKey] = rawState
+				delete(state, entryURL)
+				exists = true
+				stateChanged = true
+			}
+		}
 		if !exists {
 			attachment := slack.Attachment{
 				Title:     item.Title,
@@ -90,6 +134,7 @@ func outputHatenaToSlack(items []*FilteredItem, api slackPoster, slackChannelID 
 			)
 			if err != nil {
 				log.Printf("Slackへのメッセージ投稿に失敗しました: %v", err)
+				failed++
 				continue
 			}
 			log.Printf("新規エントリをSlackに投稿しました: Channel=%s, Timestamp=%s", channelID, timestamp)
@@ -98,7 +143,7 @@ func outputHatenaToSlack(items []*FilteredItem, api slackPoster, slackChannelID 
 				SlackThreadTimestamp: timestamp,
 				LastCommentTimestamp: "1970-01-01T00:00:00Z",
 			}
-			state[entryURL] = entryState
+			state[entryKey] = entryState
 			stateChanged = true
 		}
 
@@ -125,6 +170,7 @@ func outputHatenaToSlack(items []*FilteredItem, api slackPoster, slackChannelID 
 				)
 				if err != nil {
 					log.Printf("Slackスレッドへの投稿に失敗しました: %v", err)
+					failed++
 				} else {
 					log.Printf("新規コメントをスレッドに投稿しました: %s", commentText)
 					if commentTime.After(latestPostedCommentTime) {
@@ -139,9 +185,9 @@ func outputHatenaToSlack(items []*FilteredItem, api slackPoster, slackChannelID 
 
 		// 状態を最新のコメント時刻で更新
 		if latestPostedCommentTime.After(lastPostTime) {
-			updatedState := state[entryURL]
+			updatedState := state[entryKey]
 			updatedState.LastCommentTimestamp = latestPostedCommentTime.Format(time.RFC3339)
-			state[entryURL] = updatedState
+			state[entryKey] = updatedState
 			stateChanged = true
 		}
 	}
@@ -154,6 +200,56 @@ func outputHatenaToSlack(items []*FilteredItem, api slackPoster, slackChannelID 
 	} else {
 		log.Println("新規コメントはありませんでした。")
 	}
+	if failed > 0 {
+		return fmt.Errorf("Slackへの投稿に%d件失敗しました", failed)
+	}
+	return nil
+}
+
+func outputHatenaToSlackDryRun(items []*FilteredItem, channel string, store hatenaStateStore, w io.Writer) error {
+	if store == nil {
+		return errors.New("state store is nil")
+	}
+	if w == nil {
+		w = io.Discard
+	}
+	if channel == "" {
+		channel = "(unset)"
+	}
+	state, err := store.Load()
+	if err != nil {
+		return fmt.Errorf("状態ファイルの読み込みに失敗しました: %w", err)
+	}
+
+	parentPosts := 0
+	commentPosts := 0
+	for _, item := range items {
+		if item == nil || item.Item == nil {
+			continue
+		}
+		entryURL := item.Link
+		entryKey := itemDedupKey(item.Item)
+		entryState, exists := state[entryKey]
+		if !exists && entryKey != entryURL {
+			entryState, exists = state[entryURL]
+		}
+		if !exists {
+			parentPosts++
+			entryState = HatenaEntryState{LastCommentTimestamp: "1970-01-01T00:00:00Z"}
+		}
+
+		lastPostTime, _ := time.Parse(time.RFC3339, entryState.LastCommentTimestamp)
+		newComments := 0
+		for _, comment := range item.HatenaBookmarkComments {
+			commentTime, err := time.Parse("2006/01/02 15:04", comment.Timestamp)
+			if err == nil && commentTime.After(lastPostTime) {
+				newComments++
+			}
+		}
+		commentPosts += newComments
+		fmt.Fprintf(w, "hatena dry-run: title=%q url=%q parent_post=%t new_comments=%d\n", item.Title, entryURL, !exists, newComments)
+	}
+	fmt.Fprintf(w, "hatena dry-run summary: channel=%s parent_posts=%d comment_posts=%d\n", channel, parentPosts, commentPosts)
 	return nil
 }
 

@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"errors"
+	"strings"
 	"testing"
 	"time"
 
@@ -115,8 +117,8 @@ func TestOutputHatenaToSlackDoesNotAdvanceTimestampWhenCommentPostFails(t *testi
 	})
 
 	err := outputHatenaToSlack([]*FilteredItem{item}, poster, "C123", store, func(time.Duration) {})
-	if err != nil {
-		t.Fatalf("outputHatenaToSlack returned error: %v", err)
+	if err == nil {
+		t.Fatal("outputHatenaToSlack returned nil error for failed comment post")
 	}
 	if store.saveCount != 0 {
 		t.Fatalf("saveCount = %d, want 0", store.saveCount)
@@ -124,6 +126,33 @@ func TestOutputHatenaToSlackDoesNotAdvanceTimestampWhenCommentPostFails(t *testi
 	state := store.state["https://example.com/entry"]
 	if state.LastCommentTimestamp != "2026-05-20T12:00:00Z" {
 		t.Fatalf("LastCommentTimestamp = %q", state.LastCommentTimestamp)
+	}
+}
+
+func TestOutputHatenaToSlackDryRun(t *testing.T) {
+	store := &memoryHatenaStateStore{state: State{
+		"https://example.com/entry": {
+			SlackThreadTimestamp: "thread-ts",
+			LastCommentTimestamp: "2026-05-20T12:00:00Z",
+		},
+	}}
+	item := filteredHatenaItem("https://example.com/entry", []HatenaBookmarkComment{
+		{User: "old", Comment: "old", Timestamp: "2026/05/20 12:00"},
+		{User: "new", Comment: "new", Timestamp: "2026/05/20 12:01"},
+	})
+	var out bytes.Buffer
+
+	if err := outputHatenaToSlackDryRun([]*FilteredItem{item}, "C123", store, &out); err != nil {
+		t.Fatalf("outputHatenaToSlackDryRun returned error: %v", err)
+	}
+	got := out.String()
+	for _, want := range []string{`parent_post=false new_comments=1`, `parent_posts=0 comment_posts=1`} {
+		if !strings.Contains(got, want) {
+			t.Fatalf("dry-run output missing %q:\n%s", want, got)
+		}
+	}
+	if store.saveCount != 0 {
+		t.Fatalf("saveCount = %d, want 0", store.saveCount)
 	}
 }
 

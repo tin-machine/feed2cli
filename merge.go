@@ -7,19 +7,26 @@ import (
 // Merge は、引数として与えられたフィードのリストをマージし、重複を排除します。
 // 戻り値として、マージされたフィードのスライスを返します。
 func Merge(fs []*gofeed.Feed) []*gofeed.Feed {
-	mergedFeed := &sortableFeed{gofeed.Feed{Items: []*gofeed.Item{}}} // 空のフィードを初期化
+	return []*gofeed.Feed{FeedFromItems(MergeFeedItems(FeedItemsFromData(fs)))}
+}
 
-	// フィードをマージするため、アイテムを追加
-	for _, v := range fs {
-		for _, f := range v.Items {
-			// 既存アイテムと比較
-			if !itemExists(mergedFeed.Items, f.Link) {
-				mergedFeed.Items = append(mergedFeed.Items, f) // 同じURLがなかったら、そのフィードを追加
-			}
+func MergeFeedItems(items []FeedItem) []FeedItem {
+	seen := make(map[string]struct{}, len(items))
+	merged := make([]FeedItem, 0, len(items))
+	for _, item := range items {
+		key := item.NormalizedURL
+		if key == "" {
+			key = normalizeFeedURL(item.URL)
 		}
+		if key == "" {
+			key = item.URL
+		}
+		if _, exists := seen[key]; exists {
+			continue
+		}
+		seen[key] = struct{}{}
+		merged = append(merged, item)
 	}
-
-	mergedFeed.Sort()
-
-	return []*gofeed.Feed{&mergedFeed.Feed}
+	SortFeedItems(merged)
+	return merged
 }
