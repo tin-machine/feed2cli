@@ -3,6 +3,7 @@ module github.com/tin-machine/feed2cli
 go 1.26.3
 
 require (
+	github.com/PuerkitoBio/goquery v1.8.0
 	github.com/gorilla/feeds v1.1.1
 	github.com/mmcdole/gofeed v1.1.3
 	github.com/slack-go/slack v0.9.4
@@ -11,7 +12,6 @@ require (
 )
 
 require (
-	github.com/PuerkitoBio/goquery v1.8.0 // indirect
 	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/google/uuid v1.6.0 // indirect
@@ -25,9 +25,9 @@ require (
 	github.com/ncruces/go-strftime v1.0.0 // indirect
 	github.com/pkg/errors v0.8.0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
-	golang.org/x/net v0.50.0 // indirect
-	golang.org/x/sys v0.44.0 // indirect
-	golang.org/x/text v0.34.0 // indirect
+	golang.org/x/net v0.55.0 // indirect
+	golang.org/x/sys v0.45.0 // indirect
+	golang.org/x/text v0.37.0 // indirect
 	modernc.org/libc v1.72.3 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.11.0 // indirect
