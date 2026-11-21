@@ -60,7 +60,7 @@ func slackIntegrationChannel(api *slack.Client) (string, error) {
 	}
 	isPrivate := os.Getenv("CODEX_SLACK_TEST_CHANNEL_PRIVATE") == "1" ||
 		strings.EqualFold(os.Getenv("CODEX_SLACK_TEST_CHANNEL_PRIVATE"), "true")
-	channel, err := api.CreateConversation(name, isPrivate)
+	channel, err := api.CreateConversation(slack.CreateConversationParams{ChannelName: name, IsPrivate: isPrivate})
 	if err != nil {
 		return "", err
 	}

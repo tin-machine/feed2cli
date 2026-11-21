@@ -23,12 +23,12 @@ func (f *fakeSlackClient) AuthTest() (*slack.AuthTestResponse, error) {
 	return &slack.AuthTestResponse{Team: "test"}, nil
 }
 
-func (f *fakeSlackClient) GetConversationInfo(channelID string, includeLocale bool) (*slack.Channel, error) {
-	f.infoCalls = append(f.infoCalls, channelID)
+func (f *fakeSlackClient) GetConversationInfo(input *slack.GetConversationInfoInput) (*slack.Channel, error) {
+	f.infoCalls = append(f.infoCalls, input.ChannelID)
 	if f.infoErr != nil {
 		return nil, f.infoErr
 	}
-	return &slack.Channel{GroupConversation: slack.GroupConversation{Conversation: slack.Conversation{ID: channelID}}}, nil
+	return &slack.Channel{GroupConversation: slack.GroupConversation{Conversation: slack.Conversation{ID: input.ChannelID}}}, nil
 }
 
 func (f *fakeSlackClient) GetConversations(params *slack.GetConversationsParameters) ([]slack.Channel, string, error) {

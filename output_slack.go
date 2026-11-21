@@ -66,7 +66,7 @@ type slackPoster interface {
 type slackClient interface {
 	slackPoster
 	AuthTest() (*slack.AuthTestResponse, error)
-	GetConversationInfo(channelID string, includeLocale bool) (*slack.Channel, error)
+	GetConversationInfo(input *slack.GetConversationInfoInput) (*slack.Channel, error)
 	GetConversations(params *slack.GetConversationsParameters) ([]slack.Channel, string, error)
 }
 

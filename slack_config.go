@@ -60,7 +60,7 @@ func resolveSlackConversation(api slackClient, channel string) (string, error) {
 		return findSlackConversationByName(api, strings.TrimPrefix(channel, "#"))
 	}
 	if looksLikeSlackConversationID(channel) {
-		if _, err := api.GetConversationInfo(channel, false); err != nil {
+		if _, err := api.GetConversationInfo(&slack.GetConversationInfoInput{ChannelID: channel}); err != nil {
 			return "", fmt.Errorf("Slack channel %q を確認できません: %w", channel, err)
 		}
 		return channel, nil
