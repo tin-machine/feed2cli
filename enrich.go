@@ -11,14 +11,17 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
+// SourceLabelStage は記事の出典を選ぶステージである。
 type SourceLabelStage struct {
 	DefaultSource string
 }
 
+// Name はパイプラインでこのステージを識別する名前を返す。
 func (SourceLabelStage) Name() string {
 	return "source_label"
 }
 
+// Apply はメタデータに出典ラベルを設定する。
 func (s SourceLabelStage) Apply(ctx context.Context, items []FeedItem) ([]FeedItem, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
@@ -43,12 +46,15 @@ func (s SourceLabelStage) Apply(ctx context.Context, items []FeedItem) ([]FeedIt
 	return out, nil
 }
 
+// TagEnrichStage は記事の分類にブックマークタグを取り込むステージである。
 type TagEnrichStage struct{}
 
+// Name はパイプラインでこのステージを識別する名前を返す。
 func (TagEnrichStage) Name() string {
 	return "tag"
 }
 
+// Apply は既存の分類にはてなブックマークのタグを重複なく追加する。
 func (TagEnrichStage) Apply(ctx context.Context, items []FeedItem) ([]FeedItem, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
@@ -62,14 +68,17 @@ func (TagEnrichStage) Apply(ctx context.Context, items []FeedItem) ([]FeedItem, 
 	return out, nil
 }
 
+// OGPEnrichStage はリンク先の OGP 情報を取り込むステージである。
 type OGPEnrichStage struct {
 	Client *http.Client
 }
 
+// Name はパイプラインでこのステージを識別する名前を返す。
 func (OGPEnrichStage) Name() string {
 	return "ogp"
 }
 
+// Apply はメタデータを取得し、空のタイトルや説明を補う。
 func (s OGPEnrichStage) Apply(ctx context.Context, items []FeedItem) ([]FeedItem, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
@@ -111,14 +120,17 @@ func (s OGPEnrichStage) httpClient() *http.Client {
 	return &http.Client{Timeout: 10 * time.Second}
 }
 
+// ContentFetchStage は記事のリンク先から本文を取得するステージである。
 type ContentFetchStage struct {
 	Client *http.Client
 }
 
+// Name はパイプラインでこのステージを識別する名前を返す。
 func (ContentFetchStage) Name() string {
 	return "content"
 }
 
+// Apply はHTML から本文を抽出して記事に格納する。
 func (s ContentFetchStage) Apply(ctx context.Context, items []FeedItem) ([]FeedItem, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
@@ -152,14 +164,17 @@ func (s ContentFetchStage) httpClient() *http.Client {
 	return &http.Client{Timeout: 10 * time.Second}
 }
 
+// SummaryStage は記事に要約と読む理由を追加するステージである。
 type SummaryStage struct {
 	Summarizer Summarizer
 }
 
+// Name はパイプラインでこのステージを識別する名前を返す。
 func (SummaryStage) Name() string {
 	return "summary"
 }
 
+// Apply は各記事を要約し、取得できた要約と理由を記録する。
 func (s SummaryStage) Apply(ctx context.Context, items []FeedItem) ([]FeedItem, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
@@ -191,14 +206,17 @@ func (s SummaryStage) Apply(ctx context.Context, items []FeedItem) ([]FeedItem, 
 	return out, nil
 }
 
+// Summarizer は記事から要約と読む理由を生成する。
 type Summarizer interface {
 	Summarize(context.Context, FeedItem) (summary, reason string, err error)
 }
 
+// ExtractiveSummarizer は記事の本文、説明、タイトルの順に要約元を選ぶ。
 type ExtractiveSummarizer struct {
 	MaxRunes int
 }
 
+// Summarize は空白を整えた抜粋と記事の出典またはブックマーク数を返す。
 func (s ExtractiveSummarizer) Summarize(ctx context.Context, item FeedItem) (string, string, error) {
 	if err := ctx.Err(); err != nil {
 		return "", "", err

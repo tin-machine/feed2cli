@@ -45,6 +45,7 @@ func (sf *sortableFeed) Sort() {
 	sort.Sort(sf)
 }
 
+// SortFeedItems は日時の新しい順に安定ソートし、日時のない記事は末尾に置く。
 func SortFeedItems(items []FeedItem) {
 	sort.SliceStable(items, func(i, j int) bool {
 		timeI, okI := items[i].PublishedTime()

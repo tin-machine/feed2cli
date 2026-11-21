@@ -18,6 +18,7 @@ func Diff(fs []*gofeed.Feed) []*gofeed.Feed {
 	return []*gofeed.Feed{diffFeed}
 }
 
+// DiffFeedItems は新しい一覧に含まれない古い一覧の記事を新しい日時順で返す。
 func DiffFeedItems(oldItems, newItems []FeedItem) []FeedItem {
 	newKeys := make(map[string]struct{}, len(newItems))
 	for _, item := range newItems {
