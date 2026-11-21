@@ -29,6 +29,7 @@ type slackOutputOptions struct {
 	API                   slackClient
 }
 
+// OutputSlackWithOptions は投稿設定に従って記事を Slack に送り、ドライランでは投稿内容を出力する。
 func OutputSlackWithOptions(data interface{}, options slackOutputOptions) error {
 	slackChannelID := slackChannelFromOptions(options.Channel)
 	if options.DryRun {

@@ -43,6 +43,7 @@ func OutputHatenaToSlack(items []*FilteredItem) {
 	}
 }
 
+// OutputHatenaToSlackWithOptions ははてなブックマークの記事とコメントを Slack のスレッドに対応付けて処理する。
 func OutputHatenaToSlackWithOptions(items []*FilteredItem, options hatenaOutputOptions) error {
 	slackChannelID := slackChannelFromOptions(options.Channel)
 	store, err := newHatenaStateStore(options)

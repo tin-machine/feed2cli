@@ -10,11 +10,13 @@ import (
 
 const feedItemJSONLSchemaVersion = "feed2cli.feed_item.v1"
 
+// FeedItemJSONLRecord はスキーマのバージョンと記事を JSONL の一行として表す。
 type FeedItemJSONLRecord struct {
 	SchemaVersion string `json:"schema_version,omitempty"`
 	FeedItem
 }
 
+// NewFeedItemJSONLRecord は必要に応じて URL と ID を補い、現行形式のレコードを作る。
 func NewFeedItemJSONLRecord(item FeedItem) FeedItemJSONLRecord {
 	if item.NormalizedURL == "" {
 		item.NormalizedURL = normalizeFeedURL(item.URL)
@@ -28,6 +30,7 @@ func NewFeedItemJSONLRecord(item FeedItem) FeedItemJSONLRecord {
 	}
 }
 
+// ReadJSONLItems はJSONL から現行形式および旧形式の記事を読み込む。
 func ReadJSONLItems(r io.Reader) ([]FeedItem, error) {
 	scanner := bufio.NewScanner(r)
 	scanner.Buffer(make([]byte, 64*1024), 16*1024*1024)

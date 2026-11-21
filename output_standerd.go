@@ -36,6 +36,7 @@ func OutputStandardTo(w io.Writer, data interface{}, now time.Time) error {
 	return err
 }
 
+// OutputAtomTo はフィードデータを Atom に変換して指定先に書き出す。
 func OutputAtomTo(w io.Writer, data interface{}, now time.Time) error {
 	outFeed, err := buildOutputFeed(data, now)
 	if err != nil {

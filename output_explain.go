@@ -13,6 +13,7 @@ import (
 
 const explainJSONLSchemaVersion = "feed2cli.explain.v1"
 
+// ExplainRecord は一つの記事の採否とステージごとの理由を記録する。
 type ExplainRecord struct {
 	SchemaVersion string               `json:"schema_version"`
 	Output        string               `json:"output"`
@@ -22,6 +23,7 @@ type ExplainRecord struct {
 	Item          FeedItem             `json:"item"`
 }
 
+// ExplainStageRecord は一つのステージが記事を残したかと、その理由を表す。
 type ExplainStageRecord struct {
 	Stage   string   `json:"stage"`
 	Kept    bool     `json:"kept"`
@@ -33,6 +35,7 @@ type explainItemState struct {
 	Item        FeedItem
 }
 
+// OutputExplainJSONLTo は記事ごとの採否と処理理由を JSONL で書き出す。
 func OutputExplainJSONLTo(w io.Writer, data interface{}, cfg cliConfig, cmd string) error {
 	items, err := outputFeedItems(data)
 	if err != nil {
@@ -48,6 +51,7 @@ func OutputExplainJSONLTo(w io.Writer, data interface{}, cfg cliConfig, cmd stri
 	return nil
 }
 
+// ExplainItems は設定したステージをたどり、記事ごとの処理結果を返す。
 func ExplainItems(items []FeedItem, cfg cliConfig, output string, now time.Time) []ExplainRecord {
 	records := make([]ExplainRecord, 0, len(items))
 	states := make([]explainItemState, 0, len(items))

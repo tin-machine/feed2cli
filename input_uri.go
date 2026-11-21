@@ -33,6 +33,7 @@ const (
 	filePermission = 0666 // ファイルのパーミッション
 )
 
+// StoreFeedOptions はフィードの保存先と取得関数を指定する。
 type StoreFeedOptions struct {
 	Prefix string
 	Fetch  func(string) (*gofeed.Feed, error)
@@ -46,6 +47,7 @@ func StoreFeed(url string, prefix string) {
 	}
 }
 
+// StoreFeedWithOptions は取得した記事を保存済みの記事と統合し、保存先のパスを返す。
 func StoreFeedWithOptions(feedURL string, options StoreFeedOptions) (string, error) {
 	fetch := options.Fetch
 	if fetch == nil {

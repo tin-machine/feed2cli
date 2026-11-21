@@ -8,12 +8,14 @@ import (
 	"time"
 )
 
+// DigestOptions はダイジェストのタイトル、対象期間、基準日時を指定する。
 type DigestOptions struct {
 	Title  string
 	Window time.Duration
 	Now    time.Time
 }
 
+// OutputDigestMarkdownTo は対象期間の記事を Markdown のダイジェストとして書き出す。
 func OutputDigestMarkdownTo(w io.Writer, data interface{}, options DigestOptions) error {
 	if options.Title == "" {
 		options.Title = "feed2cli digest"

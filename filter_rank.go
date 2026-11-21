@@ -11,16 +11,19 @@ import (
 	"time"
 )
 
+// KeywordFilterStage はキーワードの採否と最低スコアを指定するステージである。
 type KeywordFilterStage struct {
 	Include  []string
 	Exclude  []string
 	MinScore int
 }
 
+// Name はパイプラインでこのステージを識別する名前を返す。
 func (KeywordFilterStage) Name() string {
 	return "keyword_filter"
 }
 
+// Apply は除外語を含む記事を除き、採用した記事にキーワードスコアを記録する。
 func (s KeywordFilterStage) Apply(ctx context.Context, items []FeedItem) ([]FeedItem, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
@@ -45,15 +48,18 @@ func (s KeywordFilterStage) Apply(ctx context.Context, items []FeedItem) ([]Feed
 	return out, nil
 }
 
+// DomainFilterStage は記事 URL のドメインに対する採否条件を持つステージである。
 type DomainFilterStage struct {
 	Include []string
 	Exclude []string
 }
 
+// Name はパイプラインでこのステージを識別する名前を返す。
 func (DomainFilterStage) Name() string {
 	return "domain_filter"
 }
 
+// Apply はドメインの許可・除外条件に合う記事を返す。
 func (s DomainFilterStage) Apply(ctx context.Context, items []FeedItem) ([]FeedItem, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
@@ -82,15 +88,18 @@ func (s DomainFilterStage) Apply(ctx context.Context, items []FeedItem) ([]FeedI
 	return out, nil
 }
 
+// TimeWindowFilterStage は記事を選ぶ期間と基準日時を持つステージである。
 type TimeWindowFilterStage struct {
 	Since time.Duration
 	Now   time.Time
 }
 
+// Name はパイプラインでこのステージを識別する名前を返す。
 func (TimeWindowFilterStage) Name() string {
 	return "time_window_filter"
 }
 
+// Apply は基準日時から指定期間内の記事を選ぶ。
 func (s TimeWindowFilterStage) Apply(ctx context.Context, items []FeedItem) ([]FeedItem, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
@@ -114,14 +123,17 @@ func (s TimeWindowFilterStage) Apply(ctx context.Context, items []FeedItem) ([]F
 	return out, nil
 }
 
+// HotnessScoreStage は注目度を計算する基準日時を持つステージである。
 type HotnessScoreStage struct {
 	Now time.Time
 }
 
+// Name はパイプラインでこのステージを識別する名前を返す。
 func (HotnessScoreStage) Name() string {
 	return "hotness_score"
 }
 
+// Apply は記事の注目度を計算してメタデータに追加する。
 func (s HotnessScoreStage) Apply(ctx context.Context, items []FeedItem) ([]FeedItem, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
@@ -140,14 +152,17 @@ func (s HotnessScoreStage) Apply(ctx context.Context, items []FeedItem) ([]FeedI
 	return out, nil
 }
 
+// MinHotnessStage は注目度の下限を指定するステージである。
 type MinHotnessStage struct {
 	Min float64
 }
 
+// Name はパイプラインでこのステージを識別する名前を返す。
 func (MinHotnessStage) Name() string {
 	return "min_hotness"
 }
 
+// Apply は注目度がしきい値以上の記事を残す。
 func (s MinHotnessStage) Apply(ctx context.Context, items []FeedItem) ([]FeedItem, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
@@ -164,14 +179,17 @@ func (s MinHotnessStage) Apply(ctx context.Context, items []FeedItem) ([]FeedIte
 	return out, nil
 }
 
+// FavUserStage は注目するブックマークユーザーを指定するステージである。
 type FavUserStage struct {
 	Users []string
 }
 
+// Name はパイプラインでこのステージを識別する名前を返す。
 func (FavUserStage) Name() string {
 	return "fav_user"
 }
 
+// Apply は指定ユーザーがコメントした記事を抽出してユーザー名を記録する。
 func (s FavUserStage) Apply(ctx context.Context, items []FeedItem) ([]FeedItem, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
@@ -204,14 +222,17 @@ func (s FavUserStage) Apply(ctx context.Context, items []FeedItem) ([]FeedItem, 
 	return out, nil
 }
 
+// RankStage は並べ替えに使う指標を指定するステージである。
 type RankStage struct {
 	By string
 }
 
+// Name はパイプラインでこのステージを識別する名前を返す。
 func (RankStage) Name() string {
 	return "rank"
 }
 
+// Apply は設定した注目度または日時で記事のコピーを並べ替える。
 func (s RankStage) Apply(ctx context.Context, items []FeedItem) ([]FeedItem, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err

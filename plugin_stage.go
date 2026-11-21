@@ -11,6 +11,7 @@ import (
 	"time"
 )
 
+// ExternalCommandStage は外部コマンドと実行条件を指定するステージである。
 type ExternalCommandStage struct {
 	StageName   string
 	Command     string
@@ -20,6 +21,7 @@ type ExternalCommandStage struct {
 	StderrLimit int
 }
 
+// Name はパイプラインでこのステージを識別する名前を返す。
 func (s ExternalCommandStage) Name() string {
 	if strings.TrimSpace(s.StageName) != "" {
 		return s.StageName
@@ -27,6 +29,7 @@ func (s ExternalCommandStage) Name() string {
 	return "external_command"
 }
 
+// Apply は記事を JSONL でコマンドに渡し、標準出力から結果を読み込む。
 func (s ExternalCommandStage) Apply(ctx context.Context, items []FeedItem) ([]FeedItem, error) {
 	command := strings.TrimSpace(s.Command)
 	if command == "" {
