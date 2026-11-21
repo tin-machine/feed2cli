@@ -5,6 +5,7 @@ import (
 	"io"
 )
 
+// OutputJSONLTo は記事を一件ずつ JSONL のレコードとして書き出す。
 func OutputJSONLTo(w io.Writer, data interface{}) error {
 	items, err := outputFeedItems(data)
 	if err != nil {

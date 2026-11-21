@@ -6,6 +6,7 @@ import (
 	"github.com/mmcdole/gofeed"
 )
 
+// FeedDocument はフィードのメタデータと正規化した記事をまとめて保持する。
 type FeedDocument struct {
 	Title       string            `json:"title,omitempty"`
 	Link        string            `json:"link,omitempty"`
@@ -17,6 +18,7 @@ type FeedDocument struct {
 	Raw         *gofeed.Feed      `json:"-"`
 }
 
+// FeedItem は入出力と処理ステージが共有する記事の表現である。
 type FeedItem struct {
 	ID                     string                  `json:"id,omitempty"`
 	URL                    string                  `json:"url,omitempty"`
@@ -36,6 +38,7 @@ type FeedItem struct {
 	Raw                    *gofeed.Item            `json:"-"`
 }
 
+// FeedDocumentsFromFeeds はnil の入力を飛ばし、フィードを内部形式の一覧に変換する。
 func FeedDocumentsFromFeeds(feeds []*gofeed.Feed) []FeedDocument {
 	docs := make([]FeedDocument, 0, len(feeds))
 	for _, feed := range feeds {
@@ -47,6 +50,7 @@ func FeedDocumentsFromFeeds(feeds []*gofeed.Feed) []FeedDocument {
 	return docs
 }
 
+// FeedDocumentFromFeed はフィードの属性と記事を内部形式に変換する。
 func FeedDocumentFromFeed(feed *gofeed.Feed) FeedDocument {
 	doc := FeedDocument{
 		Title:       feed.Title,
@@ -69,6 +73,7 @@ func FeedDocumentFromFeed(feed *gofeed.Feed) FeedDocument {
 	return doc
 }
 
+// FeedItemFromItem はgofeed の記事と出典から内部形式の記事を作る。
 func FeedItemFromItem(item *gofeed.Item, source string) FeedItem {
 	feedItem := FeedItem{
 		ID:            item.GUID,
@@ -95,6 +100,7 @@ func FeedItemFromItem(item *gofeed.Item, source string) FeedItem {
 	return feedItem
 }
 
+// FeedItemsFromFilteredItems はブックマーク情報を引き継いでフィルター結果を記事に変換する。
 func FeedItemsFromFilteredItems(items []*FilteredItem) []FeedItem {
 	feedItems := make([]FeedItem, 0, len(items))
 	for _, item := range items {
@@ -109,6 +115,7 @@ func FeedItemsFromFilteredItems(items []*FilteredItem) []FeedItem {
 	return feedItems
 }
 
+// FeedItemsFromData はサポートする入力形式から記事の一覧を取り出す。
 func FeedItemsFromData(data interface{}) []FeedItem {
 	switch v := data.(type) {
 	case []FeedItem:
@@ -137,6 +144,7 @@ func FeedItemsFromData(data interface{}) []FeedItem {
 	}
 }
 
+// FeedItemsFromDocuments は複数の文書に含まれる記事を一つの一覧にする。
 func FeedItemsFromDocuments(docs []FeedDocument) []FeedItem {
 	var items []FeedItem
 	for _, doc := range docs {
@@ -145,6 +153,7 @@ func FeedItemsFromDocuments(docs []FeedDocument) []FeedItem {
 	return items
 }
 
+// PublishedTime は公開日時を優先し、更新日時などから得られる記事の日時を返す。
 func (item FeedItem) PublishedTime() (time.Time, bool) {
 	if item.PublishedAt != nil {
 		return *item.PublishedAt, true
@@ -158,6 +167,7 @@ func (item FeedItem) PublishedTime() (time.Time, bool) {
 	return time.Time{}, false
 }
 
+// ToGofeedItem は元の gofeed 記事があれば返し、なければ保持している属性から作る。
 func (item FeedItem) ToGofeedItem() *gofeed.Item {
 	if item.Raw != nil {
 		return item.Raw
@@ -183,6 +193,7 @@ func (item FeedItem) ToGofeedItem() *gofeed.Item {
 	return out
 }
 
+// FeedFromItems は記事の順序を保った gofeed フィードを作る。
 func FeedFromItems(items []FeedItem) *gofeed.Feed {
 	feed := &gofeed.Feed{Items: make([]*gofeed.Item, 0, len(items))}
 	for _, item := range items {

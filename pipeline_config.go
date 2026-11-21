@@ -8,17 +8,20 @@ import (
 	"time"
 )
 
+// PipelineConfig はパイプラインの入力、出力、処理順を指定する。
 type PipelineConfig struct {
 	Input  PipelineInputConfig  `json:"input,omitempty"`
 	Output PipelineOutputConfig `json:"output,omitempty"`
 	Stages []PipelineStageSpec  `json:"stages,omitempty"`
 }
 
+// PipelineInputConfig は入力形式と取得するフィードを指定する。
 type PipelineInputConfig struct {
 	Format string   `json:"format,omitempty"`
 	URLs   []string `json:"urls,omitempty"`
 }
 
+// PipelineOutputConfig はパイプラインの出力先や形式に応じたオプションを保持する。
 type PipelineOutputConfig struct {
 	Type                string `json:"type,omitempty"`
 	DigestTitle         string `json:"digest_title,omitempty"`
@@ -30,6 +33,7 @@ type PipelineOutputConfig struct {
 	SlackSkipValidation bool   `json:"slack_skip_validate,omitempty"`
 }
 
+// PipelineStageSpec は一つのステージの種類とその引数を保持する。
 type PipelineStageSpec struct {
 	Type          string   `json:"type"`
 	Name          string   `json:"name,omitempty"`
@@ -48,6 +52,7 @@ type PipelineStageSpec struct {
 	StderrLimit   int      `json:"stderr_limit,omitempty"`
 }
 
+// LoadPipelineConfig は指定したファイルから JSON のパイプライン設定を読み込む。
 func LoadPipelineConfig(path string) (PipelineConfig, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -110,6 +115,7 @@ func defaultStatePath(backend string) string {
 	return stateFilePath
 }
 
+// PipelineStagesFromConfig はステージの設定を実行順に処理オブジェクトへ変換する。
 func PipelineStagesFromConfig(config PipelineConfig) ([]FeedItemStage, error) {
 	stages := make([]FeedItemStage, 0, len(config.Stages))
 	for _, spec := range config.Stages {

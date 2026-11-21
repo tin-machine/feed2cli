@@ -16,6 +16,7 @@ func OutputJSON(data interface{}) {
 	}
 }
 
+// OutputJSONTo はフィードデータを JSON で指定先に書き出す。
 func OutputJSONTo(w io.Writer, data interface{}) error {
 	itemsToProcess := FeedItemsFromData(data)
 

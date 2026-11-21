@@ -409,6 +409,7 @@ func readInputData(cfg cliConfig, stdin io.Reader, isTerminal bool) (interface{}
 	}
 }
 
+// FeedItemsToFeeds は記事を一つの gofeed フィードにまとめて返す。
 func FeedItemsToFeeds(items []FeedItem) []*gofeed.Feed {
 	return []*gofeed.Feed{FeedFromItems(items)}
 }

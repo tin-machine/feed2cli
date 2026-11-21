@@ -9,6 +9,7 @@ import (
 	"github.com/mmcdole/gofeed"
 )
 
+// FeedLintResult は入力フィードの検査件数と解析エラーを保持する。
 type FeedLintResult struct {
 	Total   int
 	Valid   int
@@ -16,6 +17,7 @@ type FeedLintResult struct {
 	Errors  []string
 }
 
+// LintFeedsFromReader は入力をフィード単位に分割して解析可能か検査する。
 func LintFeedsFromReader(r io.Reader) FeedLintResult {
 	fp := gofeed.NewParser()
 	scanner := bufio.NewScanner(r)
@@ -45,6 +47,7 @@ func LintFeedsFromReader(r io.Reader) FeedLintResult {
 	return result
 }
 
+// LintFeedURLs は各 URL からフィードを取得し、失敗した URL と理由を記録する。
 func LintFeedURLs(feedURLs []string) FeedLintResult {
 	var result FeedLintResult
 	for _, feedURL := range feedURLs {
@@ -59,6 +62,7 @@ func LintFeedURLs(feedURLs []string) FeedLintResult {
 	return result
 }
 
+// MergeFeedLintResults は複数の検査結果の件数とエラーを集約する。
 func MergeFeedLintResults(results ...FeedLintResult) FeedLintResult {
 	var merged FeedLintResult
 	for _, result := range results {
@@ -70,6 +74,7 @@ func MergeFeedLintResults(results ...FeedLintResult) FeedLintResult {
 	return merged
 }
 
+// OutputFeedLintTo は検査件数と個別のエラーを指定先に書き出す。
 func OutputFeedLintTo(w io.Writer, result FeedLintResult) error {
 	if _, err := fmt.Fprintf(w, "feeds: total=%d valid=%d invalid=%d\n", result.Total, result.Valid, result.Invalid); err != nil {
 		return err

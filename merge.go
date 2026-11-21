@@ -10,6 +10,7 @@ func Merge(fs []*gofeed.Feed) []*gofeed.Feed {
 	return []*gofeed.Feed{FeedFromItems(MergeFeedItems(FeedItemsFromData(fs)))}
 }
 
+// MergeFeedItems はURL の重複を取り除き、記事を新しい日時順で返す。
 func MergeFeedItems(items []FeedItem) []FeedItem {
 	seen := make(map[string]struct{}, len(items))
 	merged := make([]FeedItem, 0, len(items))
